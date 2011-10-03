@@ -66,48 +66,42 @@ bool Scene::_parseLine(string line) {
       std::cout << "polygon" << std::endl;
       addPolygon(polyName, _currentPoly);
     } else if (element[1] == 'v') {
+      string vertName;
+      ss >> vertName;
       double x, y, z;
       ss >> x >> y >> z;
       Vertex * vert = new Vertex(x, y, z);
       std::cout << "vertex" << std::endl;
-      _currentPoly->addVertex(vert);
+      _currentPoly->addVertex(vertName, vert);
     } else if (element[1] == 'f') {
-      vector<Vertex *> currentVerts = _currentPoly->getVertices();
-      vector<Vertex *> addToFace;
-      vector<int> tempVec;
-      /*char str[element.length()];
-      for (int i = 0; i < element.length(); i++) {
-	str[i] = element[i];
-      }
-      char * tok = strtok(str, " ");
-      while (tok != NULL) {
-	tok = strtok(NULL, " ");
-	std::cout << atoi(tok) << std::endl;
-	tempVec.push_back(atoi(tok));
-	}*/
+      map<string, Vertex *> currentVerts = _currentPoly->getVertices();
+      vector< Vertex *> addToFace;
+      vector<string> tempVec;
+      string faceName;
+      ss >> faceName;
       while (!ss.eof()) {     //split vertex numbers here
-        int vertIndex;
-        ss >> vertIndex;
-        tempVec.push_back(vertIndex - 1);
+        string vertIdentifier;
+        ss >> vertIdentifier;
+        tempVec.push_back(vertIdentifier);
       }
       for (int i = 0; i < tempVec.size(); i++) {
 	addToFace.push_back(currentVerts[tempVec[i]]);
       }
       Face * newFace = new Face(addToFace);
       std::cout << "face" << std::endl;
-      _currentPoly->addFace(newFace);
+      _currentPoly->addFace(faceName, newFace);
     } else if (element[1] == 'i') {
       string references;
       ss >> references;
       Polygon * tempPoly = _polygons[references];
-      vector<Vertex *> tempVertices = tempPoly->getVertices();
-      vector<Face *> tempFaces = tempPoly->getFaces();
+      map<string, Vertex *> tempVertices = tempPoly->getVertices();
+      map<string, Face *> tempFaces = tempPoly->getFaces();
       //int offset = (_currentPoly->getVertices()).size();
-      for (int i = 0; i < tempVertices.size(); i++) {
-	_currentPoly->addVertex(tempVertices[i]);
+      for (map<string, Vertex *>::iterator it = tempVertices.begin(); it != tempVertices.end(); it++) {
+	_currentPoly->addVertex((*it).first, (*it).second);
       }
-      for (int i = 0; i < tempFaces.size(); i++) {
-	_currentPoly->addFace(tempFaces[i]);
+      for (map<string, Face *>::iterator it = tempFaces.begin(); it != tempFaces.end(); it++) {
+	_currentPoly->addFace((*it).first, (*it).second);
       }
     } else if (element[1] == 'g') {
       string groupName;
