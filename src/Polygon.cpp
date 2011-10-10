@@ -58,6 +58,7 @@ void Polygon::draw() {
       double y = curPos[1];
       double z = curPos[2];
       glVertex3f(x, y, z);
+      //std::cout << x << " " << y << " " << z << std::endl;
     }
     glEnd();
   }

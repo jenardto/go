@@ -43,8 +43,9 @@ void display() {
   
   glColor3f(1.0, 1.0, 1.0);
   applyMat4(viewport.orientation);
-  std::cout << "drawing polygons in scene" << std::endl;
+  //std::cout << "drawing polygons in scene" << std::endl;
   scene->draw();
+  //std::cout << (scene->getPolys()).size() << std::endl;
 
   glutSwapBuffers();
 }

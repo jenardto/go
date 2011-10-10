@@ -1,14 +1,35 @@
-(p square
-   (v 0.5 0.5 0.5)
+# two environments
+  # one for input structure read from scene file what is listed in scene file
+  # one is output stucture
+
+   (v v1 0.5 0.5 0.5)
    (v 0.5 0.0 0.5)
    (v 0.5 0.0 0.0)
    (v 0.5 0.5 0.0)
-   (f 1 2 3 4)
-)
+   (f (s surfaceName) v1(s,t) 2 3 4 )
+
+#lines path of vertices to create line
+(l lineID v1 v2 v3)
+
+
+# leaving out objects until we find that we need it
+(surface yellow (rgb 1.0 0.9 0.1))
+
+(surface texName (bitmap "texture1.gif")) #gifs need to be x and y powers of 2
 
 (g two
-   (i square
+   (i square		#i nodeId referenceId: to give instances
+      (c yellow)
       (t 0.25 0.0 0.0)
+      (rx 48)
+      (ry 50)
+      (rz 45)
+      (rot 2 5 -7 180)
+      (s 0.25 1.0 1.5)
+      (mx) #mirrorring requires taking each face and specifying vertices backwards to keep surface normals facing in same direction in mirrored
+
+      (my)
+      (mz)
    )
 )	
 
