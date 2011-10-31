@@ -13,9 +13,8 @@ class Vertex
   Vertex(double x, double y, double z);
   
   vec3 getPos();
+  void setPos(vec3 p);
   void setPos(double x, double y, double z);
-
-  bool equals(Vertex * vert);
 
  private:
   vec3 _pos; 

@@ -4,70 +4,92 @@
 
 Polygon::Polygon() {
 }
-
-Polygon::Polygon(string polyName, map<string, Face *> faces, map<string, Vertex *> vertices) {
-  _name = polyName;
-  _vertices = vertices;
-  _faces = faces;
-}
-
-Polygon::Polygon(string polyName) {
-  _name = polyName;
-}
-
-/*Polygon::Polygon(const Polygon& poly) {                                           
-  for (map<string, Vertex *>::const_iterator it = poly._vertices.begin(); it != poly._vertices.end(); ++it) {
-    _vertices.push_back(new Vertex(**it));
+/*
+Polygon::~Polygon() {
+  for (map<string, Vertex *>::iterator it = _vertices.begin(); it != _vertices.end();
+       it++) {
+    delete (*it).second;
   }
-}
-
-Polygon& Polygon::operator =(const Polygon& poly) {
-  if (&poly != this) {
-    for (vector<Vertex *>::iterator it = _vertices.begin(); it!= _vertices.end(); ++it) {
-      delete *it;
-    }
-    _vertices.clear();
-
-    for (vector<Vertex *>::const_iterator it = poly._vertices.begin(); it!= poly._vertices.end(); ++it) {
-      _vertices.push_back(new Vertex(**it));
-    }
+  for (map<string, Face *>::iterator it = _faces.begin(); it != _faces.end(); 
+       it++) {
+    delete (*it).second;
   }
-
-  return *this;
 }
 */
 
-Polygon::~Polygon() {
-  for (map<string, Vertex *>::iterator it = _vertices.begin(); it != _vertices.end(); it++) {
-    delete (*it).second;
+Polygon::Polygon(string fileName) {
+  vector<Vertex> tempVerts;
+  ifstream file(fileName.c_str(), ifstream::in);
+  if (!file) {
+    std::cout << "Could not open given obj file " << fileName << std::endl;
   }
-  for (map<string, Face *>::iterator it = _faces.begin(); it != _faces.end(); it++) {
-    delete (*it).second;
+  while (file.good()) {
+    string line;
+    getline(file, line);
+    if (!_parseLine(line, tempVerts)) {
+      std::cout << "Failed to parse OBJ file." << std::endl;
+      break;
+    }
+    if (_vertices.size() > 0) // take the first face in the file.                                 
+      break;
   }
+  file.close();
+  std::cout << "Parsed an OBJ file with " << _vertices.size() << " vertices."
+            << endl;
 }
 
-void Polygon::draw() {
-  for (map<string, Face *>::iterator it = _faces.begin(); it != _faces.end(); it++) {
-    Face * currentFace = (*it).second;
-    vector<Vertex *> coordinates = currentFace->getCoordinates();
-    glBegin(GL_POLYGON);
-    for (map<string, Vertex *>::iterator iv = _vertices.begin(); iv != _vertices.end(); iv++) {
-      Vertex * currentCoord = (*iv).second;
-      vec3 curPos = currentCoord->getPos();
-      double x = curPos[0];
-      double y = curPos[1];
-      double z = curPos[2];
-      glVertex3f(x, y, z);
-      //std::cout << x << " " << y << " " << z << std::endl;
+
+bool Polygon::_parseLine(string line, vector<Vertex> & temp) {
+  string operand;
+  bool success = true;
+  if (line.empty())
+    return true;
+  stringstream ss(stringstream::in | stringstream::out);
+  ss.str(line);
+  ss >> operand;
+  if (operand[0] == '#') {
+    return true;
+  } else if (operand == "v") {
+    double x, y, z;
+    ss >> x >> y >> z;
+    temp.push_back(Vertex(x, y, z));
+  } else if (operand == "f") {
+    while (!ss.eof()) {
+      int i;
+      ss >> i;
+      addVertex(&temp[i - 1]); // copy vertex in to polygon                                     
     }
-    glEnd();
+  } else {
+    cout << "Unknown operand in scene file, skipping line: " << operand
+	 << endl;
   }
+  if (ss.fail()) {
+    std::cout
+      << "The bad bit of the input file's line's stringstream is set! Couldn't parse:"
+      << std::endl;
+    std::cout << "  " << line << std::endl;
+    success = false;
+  }
+  return success;
+}
+
+
+void Polygon::draw(GLenum mode) {
+  if (1 > _vertices.size())
+    return;
+  std::cout << "drawing..." << std::endl;
+  glBegin(mode);
+  for (vector<Vertex>::iterator it = _vertices.begin(); it
+	 != _vertices.end(); it++) {
+    glVertex3d(it->getPos()[0], it->getPos()[1], it->getPos()[2]);
+  }
+  glEnd();
+}
+
+void Polygon::addVertex(Vertex * v) {
+  _vertices.push_back(*v);
 }
 
 void Polygon::addVertex(string vName, Vertex * v) {
-  _vertices[vName] = v;
-}
-
-void Polygon::addFace(string fName, Face * f) {
-  _faces[fName] = f;
+  _namedvertices[vName] = v;
 }

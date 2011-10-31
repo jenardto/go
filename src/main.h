@@ -7,9 +7,9 @@
 
 #include "global.h"
 
-//#include "Polygon.h"
+#include "Polygon.h"
+#include "ParametricValue.h"
 #include "Scene.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

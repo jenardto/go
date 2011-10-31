@@ -1,6 +1,8 @@
 /* main.cpp */
 
 #include "main.h"
+#include <stack>
+#include <limits>
 
 using namespace std;
 
@@ -15,7 +17,7 @@ public:
 //Global Variables
 Viewport viewport;
 Scene * scene;
-Vertex * tempVertex;
+//Vertex * tempVertex;
 int button, state, xOrigin, yOrigin;
 UCB::ImageSaver * imgSaver;
 
@@ -35,6 +37,55 @@ void setupView() {
   applyMat4(viewport.orientation);
 }
 
+
+void RenderInstance(SceneInstance *n, vec3 color) {
+  glPushMatrix();
+
+  // color                                                                              
+  float r, g, b;
+  n->computeColor(color);
+  r = color[0];
+  g = color[1];
+  b = color[2];
+  glColor3f(r, g, b);
+  std::cout << "in RenderInstance" << std::endl;
+
+  // transformations                                                                    
+  mat4 transformMatrix;
+  GLdouble matrix[16];
+  if (n->computeTransform(transformMatrix)) {
+    int k = 0;
+    for (int i = 0; i < 4; i++) {
+      for (int j = 0; j < 4; j++) {
+	matrix[k] = transformMatrix[j][i];
+	k++;
+      }
+    }
+    glMultMatrixd(matrix);
+  }
+
+  if (n->getChild() != NULL) {
+    SceneGroup * child = n->getChild();
+    if (child->getPolygon() != NULL) {
+      std::cout << "drawing each polygon" << std::endl;
+      child->getPolygon()->draw(GL_POLYGON);
+    }
+
+    // goes through all children                                                  
+    for (int i = 0; i < child->getChildCount(); i++) {
+      mat4 tMat;
+      child->getChild(i)->computerTransform(tMat);
+      RenderInstance(child->getChild(i), color);
+      //if (!(child->getChild(i)->computeTransform(tMat))) {
+      //RenderInstance(child->getChild(i), color);
+      //} 
+    }
+  }
+  glPopMatrix();
+}
+
+
+
 void display() {
   //Clear Buffers
   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -43,8 +94,10 @@ void display() {
   
   glColor3f(1.0, 1.0, 1.0);
   applyMat4(viewport.orientation);
+  std::cout << "in display" << std::endl;
+  RenderInstance(scene->getRoot(), vec3(1,1,1));
   //std::cout << "drawing polygons in scene" << std::endl;
-  scene->draw();
+  
   //std::cout << (scene->getPolys()).size() << std::endl;
 
   glutSwapBuffers();
@@ -107,7 +160,6 @@ int main(int argc, char** argv) {
   imgSaver = new UCB::ImageSaver("./", "go");
 
   scene = new Scene(argv[1]);
-  scene->setOpenParens();
 
   //Create OpenGL Window
   glutInitWindowSize(viewport.w,viewport.h);
@@ -120,6 +172,8 @@ int main(int argc, char** argv) {
   glutKeyboardFunc(myKeyboardFunc);
   glutMotionFunc(myActiveMotionFunc);
   glutPassiveMotionFunc(myPassiveMotionFunc);
+
+  glEnable(GL_DEPTH_TEST);
 
   glutMainLoop();
 }

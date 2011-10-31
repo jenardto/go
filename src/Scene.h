@@ -3,35 +3,28 @@
 #ifndef SCENE_H_
 #define SCENE_H_
 
-#include "global.h"
-#include "Polygon.h"
-#include "Group.h"
-#include <map>
+#include "SceneInstance.h"
+#include "SceneGroup.h"
 
+using namespace std;
+class SceneLoader;
 class Scene {
  public:
-  Scene();
-  Scene(string file);
+  Scene(string filename); // Load a scene with the provided file name
   ~Scene();
+
+  SceneInstance *getRoot() { return _root; } // Get the starting point for a scene traversal
   
-  void draw();
+  void PrintScene(); // for debug purposes -- display the loaded structure
 
-  void addPolygon(string polyName, Polygon * poly);
-  void addGroup(string groupName, Group * group);
-
-  map<string, Polygon *> getPolys() { return _polygons; }
-  map<string, Group *> getGroups() { return _groups; }
-  
-  bool _parseLine(string line);
-
-  void setOpenParens() { _openParens = 0; }
- 
  private:
-  int _openParens;
-  Polygon * _currentPoly;
-  Group * _currentGroup;
-  map<string, Polygon *> _polygons;
-  map<string, Group *> _groups;
+  friend class SceneLoader;
+  SceneInstance *_root; // The starting point for traversing the scene DAG
+  SceneLoader *_loader; // Loader handles the file reading bits
+  
+  // private copy constructor and assignment operator to avoid copying this data
+  Scene(const Scene&);
+  Scene& operator=(const Scene&);
 };
 
 #endif /* SCENE_H_ */

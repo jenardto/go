@@ -23,9 +23,9 @@
 #include <GL/glu.h>
 #endif
 
-//Include our math library                                                                                
+//Include our math library                                                                  
 #include <algebra3.h>
-//Include our Image Saving library.                                                                       
+//Include our Image Saving library.                                                           
 #include "UCB/ImageSaver.h"
 //#include "FreeImage.h"
 
