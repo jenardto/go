@@ -77,7 +77,6 @@ bool Polygon::_parseLine(string line, vector<Vertex> & temp) {
 void Polygon::draw(GLenum mode) {
   if (1 > _vertices.size())
     return;
-  std::cout << "drawing..." << std::endl;
   glBegin(mode);
   for (vector<Vertex>::iterator it = _vertices.begin(); it
 	 != _vertices.end(); it++) {
@@ -90,6 +89,8 @@ void Polygon::addVertex(Vertex * v) {
   _vertices.push_back(*v);
 }
 
+/*
 void Polygon::addVertex(string vName, Vertex * v) {
   _namedvertices[vName] = v;
 }
+*/

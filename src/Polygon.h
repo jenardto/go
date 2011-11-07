@@ -19,7 +19,7 @@ class Polygon {
   void addVertex(Vertex * v);
   
   /* Adds a vertex to the end of this polygon */
-  void addVertex(string vName, Vertex * v);
+  //void addVertex(string vName, Vertex * v);
   
   /* Adds a face to the end of this polygon */
   //void addFace(string fName, Face * f);
@@ -28,7 +28,7 @@ class Polygon {
   string getName() { return _name; }
 
   /* Get vector of vertices */
-  map<string, Vertex *> getVertices() { return _namedvertices; }
+  //map<string, Vertex *> getVertices() { return _namedvertices; }
 
   /* Get vector of faces */
   //map<string, Face *> getFaces() { return _namedfaces; }
@@ -37,7 +37,7 @@ class Polygon {
   bool _parseLine(string, vector<Vertex> &);
   vector<Vertex> _vertices;
 
-  map<string, Vertex *> _namedvertices;
+  //map<string, Vertex *> _namedvertices;
   //map<string, Face *> _namedfaces;
   string _name;
 };

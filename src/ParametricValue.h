@@ -1,11 +1,4 @@
-/*
- * ParametricValue.h
- *
- *  A wrapper around the expression parser
- *
- *  Created on: Feb 8, 2009
- *      Author: jima
- */
+/* ParametricValue.h */
 
 #ifndef PARAMETRICVALUE_H_
 #define PARAMETRICVALUE_H_

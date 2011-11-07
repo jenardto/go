@@ -5,7 +5,6 @@
 #include <limits>
 
 using namespace std;
-
 class Viewport {
 public:
   Viewport(): mousePos(0.0,0.0) { orientation = identity3D(); };
@@ -48,7 +47,6 @@ void RenderInstance(SceneInstance *n, vec3 color) {
   g = color[1];
   b = color[2];
   glColor3f(r, g, b);
-  std::cout << "in RenderInstance" << std::endl;
 
   // transformations                                                                    
   mat4 transformMatrix;
@@ -67,14 +65,13 @@ void RenderInstance(SceneInstance *n, vec3 color) {
   if (n->getChild() != NULL) {
     SceneGroup * child = n->getChild();
     if (child->getPolygon() != NULL) {
-      std::cout << "drawing each polygon" << std::endl;
       child->getPolygon()->draw(GL_POLYGON);
     }
 
     // goes through all children                                                  
     for (int i = 0; i < child->getChildCount(); i++) {
       mat4 tMat;
-      child->getChild(i)->computerTransform(tMat);
+      child->getChild(i)->computeTransform(tMat);
       RenderInstance(child->getChild(i), color);
       //if (!(child->getChild(i)->computeTransform(tMat))) {
       //RenderInstance(child->getChild(i), color);
@@ -94,7 +91,6 @@ void display() {
   
   glColor3f(1.0, 1.0, 1.0);
   applyMat4(viewport.orientation);
-  std::cout << "in display" << std::endl;
   RenderInstance(scene->getRoot(), vec3(1,1,1));
   //std::cout << "drawing polygons in scene" << std::endl;
   

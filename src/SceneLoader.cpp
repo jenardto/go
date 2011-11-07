@@ -165,42 +165,7 @@ ParametricValue* SceneLoader::getValue(istream &str)
 {
     char temp;
     str >> temp;
-    if (temp == '{') // time-varying expression
-    {
-        int start = str.tellg();
-        string expr;
-        while (str.get(temp))
-        {
-	  /*
-            if (temp == '}') // completed expr
-            {
-                ParametricValue *v = new ExprValue(expr.c_str());
-                if (!v->good()) {
-                    *err << "Error: couldn't parse expression \"" << expr << "\" at ";
-                    curPos(*err,str.tellg());
-                    *err << endl;
-                    delete v;
-                    return NULL;
-                } else {
-                    return v;
-                }
-            }
-	  */
-            if (temp == '#')
-            {
-                string no;
-                getline(str, no);
-            }
-            else {
-                expr += temp;
-            }
-        }
-        *err << "Error: No closing brace for expr at ";
-        curPos(*err, start);
-        *err << endl;
-        return NULL;
-    }
-    else if (temp == ')')
+    if (temp == ')')
     {
         str.putback(temp);
         return NULL;
@@ -266,6 +231,71 @@ void SceneLoader::cleanAfter(vector<ParametricValue*> &vals, unsigned int i) {
     delete vals[i];
   }
 }
+
+
+bool SceneLoader::doM(istream &str, string &name) {
+  name = getString(str);
+  if (name.empty())
+    return false;
+
+  if (groups[name] != NULL) {
+    *err << "Illegal re-use of group name \"" << name << "\" at ";
+    curPos(*err,str.tellg());
+    *err << endl;
+    return false;
+  }
+
+  SceneGroup *n = new SceneGroup();
+  n->_poly = new Polygon();
+  n->_name = name;
+  groups[name] = n;
+
+  vector<Vertex> temp;
+  
+  do {
+    int state = findOpenOrClosedParen(str);
+    if (state == ERROR)
+      return false;
+    else if (state == CLOSED)
+      return true;
+    else if (state == OPEN) {
+      string cmd;
+      vector<ParametricValue*> values;
+      if (readCommand(str, cmd)) {
+	if (cmd == "v") {
+	  int numv = getValues(str, values);
+          if (numv < 1) {
+            *err << "v with no args at "; errLine(str.tellg());
+          } else if (numv < 3) {
+	    *err << "v with not enough args at "; errLine(str.tellg());
+	  } else {
+            cleanAfter(values, 3);
+	    double x, y, z;
+	    x = values[0]->getValue();
+	    y = values[1]->getValue();
+	    z = values[2]->getValue();
+	    temp.push_back(Vertex(x, y, z));
+          }
+	} else if (cmd == "f") {
+	  int numv = getValues(str, values);
+	  if (numv < 1) {
+	    *err << "f with no args at "; errLine(str.tellg());
+	  } else if (numv < 3) {
+	    *err << "f with not enough args at "; errLine(str.tellg());
+	  } else {
+	    for (int i = 0; i < numv; i++) {
+	      int vertIndex = values[i]->getValue() - 1;
+	      n->_poly->addVertex(&temp[vertIndex]);
+	    }
+	  }
+	}
+	findCloseParen(str);
+      }
+    }
+  } while (true);
+
+}
+
 
 SceneInstance* SceneLoader::doI(istream &str, string &name) {
   name = getString(str);
@@ -356,7 +386,15 @@ SceneInstance* SceneLoader::doI(istream &str, string &name) {
 	else if (cmd == "color") {
 	  int numv = getValues(str, values);
 	  Color *c = NULL;
-	  if (numv < 3) {
+	  if (numv == 0) {
+	    string colorRef;
+	    str >> colorRef;
+	    Color *temp;
+	    //temp = _savedColors[colorRef];
+	    for (int i = 0; i < 3; i++) {
+	      c->_color[i] = temp->_color[i];
+	    }
+	  } else if (numv < 3) {
 	    *err << "color with too few parameters at "; errLine(str.tellg());
 	  } else {
 	    cleanAfter(values, 3);
@@ -462,6 +500,11 @@ bool SceneLoader::buildScene(string filename)
 	  cout << "mangled include at ";
 	  curPos(cout, file.tellg());
 	  cout << endl;
+	}
+      } else if (line == "m") {
+	string iname;
+	if (doM(file, iname)) {
+	  cout << "got a mesh named " << iname << endl;
 	}
       } else if (line == "i") {
 	*err << "Error: Instance commands must belong to a group, but I found in global scope at "; errLine(file.tellg());

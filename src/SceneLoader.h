@@ -56,10 +56,11 @@ private:
     int getValues(istream &str, vector<ParametricValue*> &vals); // extract numeric values until we can't find any more, return amount found
 
     /* functions for processing each top-level command type */
-    bool doInclude(istream &str, string& name); // process an Include command
-    SceneInstance* doI(istream &str, string &name); // process an I (instance) command
-    bool doG(istream &str, string &name); // process a G (group) command
-    bool doRender(istream &str, string &name); // process a Render command
+    bool doInclude(istream &str, string& name); // process an include command
+    bool doM(istream &str, string& name); // process a m (mesh) command
+    SceneInstance* doI(istream &str, string &name); // process an i (instance) command
+    bool doG(istream &str, string &name); // process a g (group) command
+    bool doRender(istream &str, string &name); // process a render command
 
     /* the main loading function */
     bool buildScene(string filename); 
