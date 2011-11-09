@@ -1,18 +1,20 @@
-#(include square "square.obj")
+# texture information s and t stored in the face
+
+(include square "square.obj")
 (surface yellow (rgb 1.0 1.0 0.0))
 
-(m square
-   (v 0.25 0.25 0.0)
-   (v 0.25 -0.25 0.0)
-   (v -0.25 -0.25 0.0)
-   (v -0.25 0.25 0.0)
-   (f 4 3 2 1)
-)   
+#(m square
+#   (v 0.25 0.25 0.0)
+#   (v 0.25 -0.25 0.0)
+#   (v -0.25 -0.25 0.0)
+#   (v -0.25 0.25 0.0)
+#   (f 4 3 2 1)
+#)   
 
 (g corner
    (i i1 square (rot 180 1 0 0) (t 0.25 0.25 -0.5) (color 0.0 0.0 1.0))
    (i i2 square (rot -90 1 0 0) (t 0.25 0.5 -0.25) (color 0.0 1.0 0.0))
-   (i i3 square (rot 90 0 1 0) (t 0.5 0.25 -0.25) (color 1.0 0.0 0.0))
+   (i i3 square (rot 90 0 1 0) (t 0.5 0.25 -0.25) (color yellow))
 )
 
 (g quad

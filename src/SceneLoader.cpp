@@ -221,6 +221,52 @@ bool SceneLoader::doInclude(istream &str, string& name) {
   return true;
 }
 
+
+bool SceneLoader::doSurface(istream &str, string& name) {
+  name = getString(str);
+  if (name.empty()) {
+    *err << "Couldn't read surface name at "; errLine(str.tellg());
+    return false;
+  }
+
+  if (_savedColors[name] != NULL) {
+    *err << "Illegal re-use of surface name \"" << name << "\" at ";
+    curPos(*err,str.tellg());
+    *err << endl;
+    return false;
+  }
+
+  do {
+    int state = findOpenOrClosedParen(str);
+    if (state == ERROR)
+      return false;
+    else if (state == CLOSED)
+      return true;
+    else if (state == OPEN) {
+      string cmd;
+      vector<ParametricValue*> values;
+      if (readCommand(str, cmd)) {
+	if (cmd == "rgb") {
+	  int numv = getValues(str, values);
+	  if (numv < 3) {
+	    *err << "rgb with not enough args at "; errLine(str.tellg());
+	  } else {
+	    cleanAfter(values, 3);
+	    Color *c = new Color();
+	    for (int i = 0; i < 3; i++) {
+	      c->_color[i] = values[i];
+	    }
+	    _savedColors[name] = c;
+	  }
+	} else if (cmd == "bitmap") {
+	  // something with loading textures
+	}
+	findCloseParen(str);
+      }
+    }
+  } while (true);
+}
+
 void SceneLoader::errLine(int at) {
   curPos(*err, at);
   *err << endl;
@@ -384,23 +430,42 @@ SceneInstance* SceneLoader::doI(istream &str, string &name) {
 	    n->_transforms.push_back(s);
 	}
 	else if (cmd == "color") {
-	  int numv = getValues(str, values);
-	  Color *c = NULL;
-	  if (numv == 0) {
+	  bool lookup = false;
+	  Color *c = new Color();
+	  str.get(); // get rid of white space
+	  char nextChar = str.peek();
+	  if (!((nextChar >= '0') && (nextChar <= '9'))) {
+	    lookup = true;
+	  }
+
+	  std::cout << nextChar << std::endl;
+	  //for (map<string, Color*>::iterator it; it != _savedColors.end(); it++) {
+	    //if (it->first[0] == nextChar) {
+	    //  lookup = true;
+	    //}
+	    //if (it->first == nextString) {
+	    //  lookup = true;
+	    //}
+	  //}
+	  if (lookup) {
 	    string colorRef;
-	    str >> colorRef;
-	    Color *temp;
-	    //temp = _savedColors[colorRef];
-	    for (int i = 0; i < 3; i++) {
-	      c->_color[i] = temp->_color[i];
+	    if (readCommand(str, colorRef)) {
+	      std::cout << colorRef << std::endl;
+	      Color *temp = _savedColors[colorRef];
+	      for (int i = 0; i < 3; i++) {
+		c->_color[i] = temp->_color[i];
+	      }
 	    }
-	  } else if (numv < 3) {
-	    *err << "color with too few parameters at "; errLine(str.tellg());
 	  } else {
-	    cleanAfter(values, 3);
-	    c = new Color();
-	    for (int i = 0; i < 3; i++)
-	      c->_color[i] = values[i];
+	    int numv = getValues(str, values);
+	    if (numv < 3) {
+	      *err << "color with too few parameters at "; errLine(str.tellg());
+	    } else {
+	      cleanAfter(values, 3);
+	      //c = new Color();
+	      for (int i = 0; i < 3; i++)
+		c->_color[i] = values[i];
+	    }
 	  }
 	  if (c != NULL)
 	    n->_color = c;
@@ -500,6 +565,11 @@ bool SceneLoader::buildScene(string filename)
 	  cout << "mangled include at ";
 	  curPos(cout, file.tellg());
 	  cout << endl;
+	}
+      } else if (line == "surface") {
+	string surfaceName;
+	if (doSurface(file, surfaceName)) {
+	  cout << "got surface named " << surfaceName << endl;
 	}
       } else if (line == "m") {
 	string iname;

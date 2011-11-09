@@ -32,6 +32,8 @@ private:
     map<string, SceneGroup*> groups;
     // all the instances in the file
     vector<SceneInstance*> instances;
+    // map from color identifier to rgb values
+    map<string, Color*> _savedColors;
 
     // a stream for error messages, usually cout
     ostream *err;
@@ -57,6 +59,7 @@ private:
 
     /* functions for processing each top-level command type */
     bool doInclude(istream &str, string& name); // process an include command
+    bool doSurface(istream &str, string& name); // process a surface command
     bool doM(istream &str, string& name); // process a m (mesh) command
     SceneInstance* doI(istream &str, string &name); // process an i (instance) command
     bool doG(istream &str, string &name); // process a g (group) command
