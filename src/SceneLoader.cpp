@@ -1,6 +1,5 @@
 #include "SceneLoader.h"
 
-
 SceneLoader::SceneLoader(Scene &scene, string file) {
     err = &cout;
     scene._root = new SceneInstance();
@@ -323,15 +322,30 @@ bool SceneLoader::doM(istream &str, string &name) {
 	    temp.push_back(Vertex(x, y, z));
           }
 	} else if (cmd == "f") {
-	  int numv = getValues(str, values);
-	  if (numv < 1) {
-	    *err << "f with no args at "; errLine(str.tellg());
-	  } else if (numv < 3) {
-	    *err << "f with not enough args at "; errLine(str.tellg());
+	  bool hasSurf = false;
+	  str.get(); // get rid of white space
+	  char nextChar = str.peek();
+	  if (!((nextChar >= '0') && (nextChar <= '9'))) {
+	    if (nextChar == '(') {
+	      hasSurf = true;
+	    } else {
+	      *err << "invalid args for f"; errLine(str.tellg());
+	    }
+	  }
+	  // have surface texture information need to read s,t values
+	  if (hasSurf) {
+	    
 	  } else {
-	    for (int i = 0; i < numv; i++) {
-	      int vertIndex = values[i]->getValue() - 1;
-	      n->_poly->addVertex(&temp[vertIndex]);
+	    int numv = getValues(str, values);
+	    if (numv < 1) {
+	      *err << "f with no args at "; errLine(str.tellg());
+	    } else if (numv < 3) {
+	      *err << "f with not enough args at "; errLine(str.tellg());
+	    } else {
+	      for (int i = 0; i < numv; i++) {
+		int vertIndex = values[i]->getValue() - 1;
+		n->_poly->addVertex(&temp[vertIndex]);
+	      }
 	    }
 	  }
 	}

@@ -1,9 +1,4 @@
-/*
- * SceneGroup.cpp
- *
- *  Created on: Feb 12, 2009
- *      Author: jima
- */
+/* SceneGroup.cpp */
 
 #include "SceneInstance.h"
 #include "SceneGroup.h"

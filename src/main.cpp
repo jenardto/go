@@ -16,7 +16,8 @@ public:
 //Global Variables
 Viewport viewport;
 Scene * scene;
-//Vertex * tempVertex;
+Collection * collection;
+Vertex * tempVertex;
 int button, state, xOrigin, yOrigin;
 UCB::ImageSaver * imgSaver;
 
@@ -46,7 +47,7 @@ void RenderInstance(SceneInstance *n, vec3 color) {
   r = color[0];
   g = color[1];
   b = color[2];
-  glColor3f(r, g, b);
+  //glColor3f(r, g, b);
 
   // transformations                                                                    
   mat4 transformMatrix;
@@ -61,17 +62,65 @@ void RenderInstance(SceneInstance *n, vec3 color) {
     }
     glMultMatrixd(matrix);
   }
-
-  if (n->getChild() != NULL) {
-    SceneGroup * child = n->getChild();
-    if (child->getPolygon() != NULL) {
-      child->getPolygon()->draw(GL_POLYGON);
+  //transformMatrix = transformMatrix * tMat;
+  //std::cout << transformMatrix << std::endl;
+  GLdouble mat[16];
+  mat4 tMat;
+  glGetDoublev(GL_PROJECTION_MATRIX, mat);
+  int k = 0;
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      tMat[j][i] = mat[k];
+      k++;
     }
-
+  }
+  std::cout << tMat << std::endl;
+  if (n->getChild() != NULL) {
+    SceneGroup * child = n->getChild();    
+    if (child->getPolygon() != NULL) {      
+      //child->getPolygon()->draw(GL_POLYGON);
+      // collection->addFace(child->getPolygon());
+      vector<Vertex> tempVerts = child->getPolygon()->getCoordinates();
+      Polygon * newPolygon = new Polygon();
+      double centroidX, centroidY, centroidZ;
+      centroidX = 0;
+      centroidY = 0;
+      centroidZ = 0;
+      int numVerts = tempVerts.size();
+      for (int i = 0; i < numVerts; i++) {
+	Vertex tempVert = tempVerts[i];
+	vec3 tempVPos = tempVert.getPos();
+	double x, y, z;
+	x = tempVPos[0];
+	y = tempVPos[1];
+	z = tempVPos[2];
+	vec4 transformVert = vec4(x, y, z, 1);
+	transformVert = tMat * transformVert;
+	//std::cout << transformVert << std::endl;
+	double pX, pY, pZ;
+	pX = transformVert[0];
+	pY = transformVert[1];
+	pZ = transformVert[2];
+	centroidX = centroidX + pX;
+	centroidY = centroidY + pY;
+	centroidZ = centroidZ + pZ;
+	Vertex * newVert = new Vertex(pX, pY, pZ);
+	newPolygon->addVertex(newVert);
+	collection->addVertex(newVert);
+      }
+      centroidX = centroidX/numVerts;
+      centroidY = centroidY/numVerts;
+      centroidZ = centroidZ/numVerts;
+      Vertex * cent = new Vertex(centroidX, centroidY, centroidZ);
+      newPolygon->addCentroid(cent);
+      newPolygon->setColor(color);
+      collection->addFace(newPolygon);
+    }
+    
     // goes through all children                                                  
     for (int i = 0; i < child->getChildCount(); i++) {
-      mat4 tMat;
-      child->getChild(i)->computeTransform(tMat);
+      //mat4 tMat;
+      //child->getChild(i)->computeTransform(tMat);
       RenderInstance(child->getChild(i), color);
       //if (!(child->getChild(i)->computeTransform(tMat))) {
       //RenderInstance(child->getChild(i), color);
@@ -91,9 +140,11 @@ void display() {
   
   glColor3f(1.0, 1.0, 1.0);
   applyMat4(viewport.orientation);
+  
+  collection = new Collection();
   RenderInstance(scene->getRoot(), vec3(1,1,1));
   //std::cout << "drawing polygons in scene" << std::endl;
-  
+  collection->draw();
   //std::cout << (scene->getPolys()).size() << std::endl;
 
   glutSwapBuffers();
@@ -154,7 +205,7 @@ int main(int argc, char** argv) {
   }
 
   imgSaver = new UCB::ImageSaver("./", "go");
-
+  collection = new Collection();
   scene = new Scene(argv[1]);
 
   //Create OpenGL Window

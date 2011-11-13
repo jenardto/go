@@ -1,9 +1,4 @@
-/*
- * SceneGroup.h
- *
- *  Created on: Feb 12, 2009
- *      Author: jima
- */
+/* SceneGroup.h */
 
 #ifndef SCENEGROUP_H_
 #define SCENEGROUP_H_

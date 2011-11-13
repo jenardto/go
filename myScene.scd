@@ -1,13 +1,20 @@
+# add face class
+# mirroring
+  # use a flag, decide whether vertices need to be read backwards or not before render
 # texture information s and t stored in the face
+# flatten scene for subdivision
+  # need merge function to flatten scene, merge vertices of instances that should be a single vertex
 
 (include square "square.obj")
 (surface yellow (rgb 1.0 1.0 0.0))
+#(surface textureName "texture.gif")
 
 #(m square
 #   (v 0.25 0.25 0.0)
 #   (v 0.25 -0.25 0.0)
 #   (v -0.25 -0.25 0.0)
 #   (v -0.25 0.25 0.0)
+#   (f (surf textureName) 4(0 0) 3(1 0) 2(1 1) 1(0 1))
 #   (f 4 3 2 1)
 #)   
 
@@ -18,8 +25,8 @@
 )
 
 (g quad
-   (i i1 corner )#(color 1.0 0.0 0.0))
-   (i i2 corner (rot 90 1 0 0)) #(t 0.5 0.25 -0.25))
+   (i i1 corner)
+   (i i2 corner (rot 90 1 0 0))
 )
 
 (g half

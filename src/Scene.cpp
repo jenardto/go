@@ -1,9 +1,4 @@
-/*
- * Scene.cpp
- *
- *  Created on: Feb 8, 2009
- *      Author: jima
- */
+/* Scene.cpp */
 
 #include "Scene.h"
 #include "SceneLoader.h"

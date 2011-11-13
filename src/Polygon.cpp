@@ -4,18 +4,12 @@
 
 Polygon::Polygon() {
 }
-/*
-Polygon::~Polygon() {
-  for (map<string, Vertex *>::iterator it = _vertices.begin(); it != _vertices.end();
-       it++) {
-    delete (*it).second;
-  }
-  for (map<string, Face *>::iterator it = _faces.begin(); it != _faces.end(); 
-       it++) {
-    delete (*it).second;
+
+Polygon::Polygon(vector<Vertex> vertices) {
+  for (int i = 0; i < vertices.size(); i++) {
+    _vertices.push_back(vertices[i]);
   }
 }
-*/
 
 Polygon::Polygon(string fileName) {
   vector<Vertex> tempVerts;
@@ -38,6 +32,18 @@ Polygon::Polygon(string fileName) {
             << endl;
 }
 
+bool Polygon::onMyPoly(Vertex vert) {
+  for (int i = 0; i < _vertices.size(); i++) {
+    if (_vertices[i].equals(vert)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void Polygon::addTexCoordinate(vec2 uv) {
+  _texCoordinates.push_back(uv);
+}
 
 bool Polygon::_parseLine(string line, vector<Vertex> & temp) {
   string operand;
@@ -89,8 +95,3 @@ void Polygon::addVertex(Vertex * v) {
   _vertices.push_back(*v);
 }
 
-/*
-void Polygon::addVertex(string vName, Vertex * v) {
-  _namedvertices[vName] = v;
-}
-*/
