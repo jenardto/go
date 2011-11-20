@@ -8,7 +8,9 @@
 #include <map>
 
 class Polygon {
-
+  
+  GLuint tex;
+  
  public:
   Polygon();
   Polygon(string fileName);
@@ -30,7 +32,7 @@ class Polygon {
   void draw(GLenum mode = GL_LINE_LOOP);
 
   void addVertex(Vertex * v);
-  
+
   /* Get name of poly */
   string getName() { return _name; }
 
@@ -41,6 +43,9 @@ class Polygon {
 
   /* Get vector of faces */
   //map<string, Face *> getFaces() { return _namedfaces; }
+  void setTexName(string texName) { _textureName = texName; }
+  string getTexName() { return _textureName; }
+  bool polyLoadTexture(string textureFile);
 
  private:
   bool _parseLine(string, vector<Vertex> &);
@@ -50,7 +55,7 @@ class Polygon {
   Vertex * _centroid;
   //vector<Vertex *> _coordinates;
   vector<vec2> _texCoordinates;
-
+  string _textureName;
   string _name;
 };
 

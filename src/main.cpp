@@ -74,7 +74,7 @@ void RenderInstance(SceneInstance *n, vec3 color) {
       k++;
     }
   }
-  std::cout << tMat << std::endl;
+  //std::cout << tMat << std::endl;
   if (n->getChild() != NULL) {
     SceneGroup * child = n->getChild();    
     if (child->getPolygon() != NULL) {      

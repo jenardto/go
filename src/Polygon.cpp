@@ -1,6 +1,7 @@
 /* Polygon.cpp */
 
 #include "Polygon.h"
+#include "LoadImage.h"
 
 Polygon::Polygon() {
 }
@@ -95,3 +96,7 @@ void Polygon::addVertex(Vertex * v) {
   _vertices.push_back(*v);
 }
 
+bool Polygon::polyLoadTexture(string textureFile) {
+  bool texloaded = loadTexture(textureFile, tex);
+  return texloaded;
+}

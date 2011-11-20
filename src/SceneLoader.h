@@ -34,7 +34,8 @@ private:
     vector<SceneInstance*> instances;
     // map from color identifier to rgb values
     map<string, Color*> _savedColors;
-
+    // map from surface name to texture file name used for loading
+    map<string, string> _savedTextures;
     // a stream for error messages, usually cout
     ostream *err;
 

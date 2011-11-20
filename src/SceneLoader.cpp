@@ -259,6 +259,9 @@ bool SceneLoader::doSurface(istream &str, string& name) {
 	  }
 	} else if (cmd == "bitmap") {
 	  // something with loading textures
+	  string file = getQuoted(str);
+	  std::cout << file << std::endl;
+	  _savedTextures[name] = file;
 	}
 	findCloseParen(str);
       }
@@ -322,20 +325,91 @@ bool SceneLoader::doM(istream &str, string &name) {
 	    temp.push_back(Vertex(x, y, z));
           }
 	} else if (cmd == "f") {
-	  bool hasSurf = false;
+	
 	  str.get(); // get rid of white space
 	  char nextChar = str.peek();
 	  if (!((nextChar >= '0') && (nextChar <= '9'))) {
-	    if (nextChar == '(') {
-	      hasSurf = true;
+	    string fcmd;
+	    findOpenParen(str);
+	    if (readCommand(str, fcmd)) {
+	      
+	      if (fcmd == "surf") {
+		//load the texture
+		
+		string textureName;
+	        textureName = getString(str);
+		std::cout << "textureName: " + textureName << std::endl;
+		n->_poly->setTexName(_savedTextures[textureName]);
+	      } 
+	      string line;
+	      getline(str, line);
+	      
+	      stringstream ss(stringstream::in | stringstream::out);
+	      ss.str(line);
+	      while (!ss.eof()) {
+		string elem;
+		ss >> elem;
+		if (elem == ")") {
+		  continue;
+		}
+		
+		string tempVertIndex = "";
+		int elemIndex;
+		for (elemIndex = 0; elemIndex < elem.size(); elemIndex++) {
+		  if (elem[elemIndex] == '(') {
+		    break;
+		  } else {
+		    tempVertIndex = tempVertIndex + elem[elemIndex];
+		  }
+		}
+		
+		size_t endIndex = elem.size() - elemIndex - 2;
+		string texCoords = elem.substr(elemIndex + 1, endIndex);
+		
+		endIndex = texCoords.find(",");
+		string sTempVal = "";
+		string tTempVal = "";
+		for (int i = 0; i < texCoords.size(); i++) {
+		  if (texCoords[i] == ',' ) {
+		    endIndex = texCoords.size() - i - 1;
+		    tTempVal = texCoords.substr(i + 1, endIndex);
+		    break;
+		  }
+		  sTempVal = sTempVal + texCoords[i];
+		}
+		
+		char s[sizeof(sTempVal)];
+		char t[sizeof(tTempVal)];
+		for (int i = 0; i < sTempVal.size(); i++) {
+		  s[i] = sTempVal[i];
+		}
+		for (int i = 0; i < tTempVal.size(); i++) {
+		  t[i] = tTempVal[i];
+		}
+		
+	        double sVal = atof(s);
+		double tVal = atof(t);
+		
+		vec2 textureCoord = vec2(sVal, tVal);
+	       
+		char tVIndex[sizeof(tempVertIndex)];
+		for (int i = 0; i < tempVertIndex.size(); i++) {
+		  tVIndex[i] = tempVertIndex[i];
+		}
+		
+		int vertIndex = atoi(tVIndex) - 1;
+		
+		std::cout << "textureCoord: " << textureCoord << std::endl;
+		std::cout << "vertIndex: " << temp[vertIndex].getPos() << std::endl;
+		n->_poly->addTexCoordinate(textureCoord);
+		temp[vertIndex].setTextureCoord(textureCoord);
+		n->_poly->addVertex(&temp[vertIndex]);
+	      }
+	      str.putback(')');
 	    } else {
 	      *err << "invalid args for f"; errLine(str.tellg());
 	    }
-	  }
-	  // have surface texture information need to read s,t values
-	  if (hasSurf) {
-	    
-	  } else {
+	  } else {   
 	    int numv = getValues(str, values);
 	    if (numv < 1) {
 	      *err << "f with no args at "; errLine(str.tellg());
@@ -344,6 +418,7 @@ bool SceneLoader::doM(istream &str, string &name) {
 	    } else {
 	      for (int i = 0; i < numv; i++) {
 		int vertIndex = values[i]->getValue() - 1;
+		std::cout << temp[vertIndex].getPos() << std::endl;
 		n->_poly->addVertex(&temp[vertIndex]);
 	      }
 	    }
@@ -353,7 +428,6 @@ bool SceneLoader::doM(istream &str, string &name) {
       }
     }
   } while (true);
-
 }
 
 
