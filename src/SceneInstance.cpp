@@ -38,6 +38,15 @@ bool SceneInstance::computeColor(vec3 &color, int time)
     return true;
 }
 /*
+bool SceneInstance::computeTexture(string &texture)
+{
+  if (_texName.empty())
+    return false;
+  else
+    texture = _texName;
+  return true;
+}
+
 bool SceneInstance::computeLOD(int &lod, int time)
 {
     if (_lod == NULL)

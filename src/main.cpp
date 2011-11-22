@@ -43,11 +43,20 @@ void RenderInstance(SceneInstance *n, vec3 color) {
 
   // color                                                                              
   float r, g, b;
-  n->computeColor(color);
-  r = color[0];
-  g = color[1];
-  b = color[2];
+  if (n->computeColor(color)) {
+    r = color[0];
+    g = color[1];
+    b = color[2];
+  }
   //glColor3f(r, g, b);
+  /*
+  string texName = NULL;
+  if (n->computeTexture(texture)) {
+    texName = texture;
+  }
+  */
+  //string texName = n->getTexName();
+  //std::cout << texName << std::endl;
 
   // transformations                                                                    
   mat4 transformMatrix;
@@ -81,7 +90,15 @@ void RenderInstance(SceneInstance *n, vec3 color) {
       //child->getPolygon()->draw(GL_POLYGON);
       // collection->addFace(child->getPolygon());
       vector<Vertex> tempVerts = child->getPolygon()->getCoordinates();
+      string texName = child->getPolygon()->getTexName();
+      vector<vec2> texCoords = child->getPolygon()->getTexCoordinates();
+      
       Polygon * newPolygon = new Polygon();
+      newPolygon->setTexName(texName);
+      for (int i = 0; i < texCoords.size(); i++) {
+	newPolygon->addTexCoordinate(texCoords[i]);
+      }
+
       double centroidX, centroidY, centroidZ;
       centroidX = 0;
       centroidY = 0;
@@ -141,6 +158,22 @@ void display() {
   glColor3f(1.0, 1.0, 1.0);
   applyMat4(viewport.orientation);
   
+  /*
+  Polygon * p = new Polygon();
+  p->addVertex(new Vertex(0.25, 0.25, 0.0));
+  p->addVertex(new Vertex(0.25, -0.25, 0.0));
+  p->addVertex(new Vertex(-0.25, -0.25, 0.0));
+  p->addVertex(new Vertex(-0.25, 0.25, 0.0));
+  p->addTexCoordinate(vec2(GLdouble(0.0),GLdouble(0.0)));
+  p->addTexCoordinate(vec2(GLdouble(1.0),GLdouble(0.0)));
+  p->addTexCoordinate(vec2(GLdouble(1.0),GLdouble(1.0)));
+  p->addTexCoordinate(vec2(GLdouble(0.0),GLdouble(1.0)));
+  p->setTexName("lizard.bmp");
+  p->polyLoadTexture("lizard.bmp");
+  //p->setColor(vec3(1.0, 0.0, 0.0));
+  p->draw();
+  */
+
   collection = new Collection();
   RenderInstance(scene->getRoot(), vec3(1,1,1));
   //std::cout << "drawing polygons in scene" << std::endl;
@@ -220,7 +253,31 @@ int main(int argc, char** argv) {
   glutMotionFunc(myActiveMotionFunc);
   glutPassiveMotionFunc(myPassiveMotionFunc);
 
-  glEnable(GL_DEPTH_TEST);
+
+  {                                                                                                
+    float ambient[4] = { .1f, .1f, .1f, 1.f };                                                    
+    float diffuse[4] = { 1.0f, 1.0f, 1.0f, 1.f };                                                 
+    float pos[4] = { 0, 0, 1, 0 };                                                                
+    glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);                                                    
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);                                                    
+    glLightfv(GL_LIGHT0, GL_POSITION, pos);                                                       
+    glEnable(GL_LIGHT0);                                                                          
+  }                                                                                                
+                                                                                                     
+  glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);                                      
+  glEnable(GL_COLOR_MATERIAL);                                                                     
+  glEnable(GL_LIGHTING);                                                                       
+  glEnable(GL_DEPTH_TEST);                                                                         
+  glEnable(GL_TEXTURE_2D);                                                                         
+                                                                                                     
+  glewInit();                                                                                      
+  if (GLEW_ARB_vertex_shader && GLEW_ARB_fragment_shader)                                      
+    printf("Ready for GLSL\n");                                                          
+  else {                                                                                       
+    printf("No GLSL support\n");                                                         
+    exit(1);                                                                             
+  }
+
 
   glutMainLoop();
 }

@@ -84,12 +84,26 @@ bool Polygon::_parseLine(string line, vector<Vertex> & temp) {
 void Polygon::draw(GLenum mode) {
   if (1 > _vertices.size())
     return;
-  glBegin(mode);
-  for (vector<Vertex>::iterator it = _vertices.begin(); it
-	 != _vertices.end(); it++) {
-    glVertex3d(it->getPos()[0], it->getPos()[1], it->getPos()[2]);
+  if (_textureName == "") {
+    glColor3f(_color[0], _color[1], _color[2]);
+    glBegin(GL_POLYGON);
+    for (vector<Vertex>::iterator it = _vertices.begin(); it
+	   != _vertices.end(); it++) {
+      glVertex3d(it->getPos()[0], it->getPos()[1], it->getPos()[2]);
+    }
+    glEnd();
+  } else {
+    glActiveTexture(GL_TEXTURE0);                                                
+    glBindTexture(GL_TEXTURE_2D, tex);
+
+    glBegin(GL_POLYGON);
+    for (int i = 0; i < _texCoordinates.size(); i++) {
+      vec2 texPos = _texCoordinates[i];
+      glTexCoord2d(GLdouble(texPos[0]), GLdouble(texPos[1]));
+      glVertex3d(_vertices[i].getPos()[0], _vertices[i].getPos()[1], _vertices[i].getPos()[2]);
+    }
+    glEnd();
   }
-  glEnd();
 }
 
 void Polygon::addVertex(Vertex * v) {

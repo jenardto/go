@@ -517,7 +517,14 @@ SceneInstance* SceneLoader::doI(istream &str, string &name) {
 	  if (s != NULL)
 	    n->_transforms.push_back(s);
 	}
+	else if (cmd == "surf") {
+	  string surfRef;
+	  if (readCommand(str, surfRef)) {
+	    //n->_texName =_savedTextures[surfRef]);
+	  }
+	}
 	else if (cmd == "color") {
+	 
 	  bool lookup = false;
 	  Color *c = new Color();
 	  str.get(); // get rid of white space

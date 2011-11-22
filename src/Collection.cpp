@@ -44,6 +44,15 @@ void Collection::draw() {
   }
   for (int i = 0; i < _faces.size(); i++) {
     Polygon * currentFace = _faces[i];
+    
+    if (currentFace->getTexName() != "") {
+      vector<vec2> currentTexCoordinates = currentFace->getTexCoordinates();
+      string texName = currentFace->getTexName();
+      currentFace->polyLoadTexture(texName);
+    }
+    currentFace->draw();
+    
+    /*
     vector<Vertex> coordinates = currentFace->getCoordinates();
     vec3 color = currentFace->getColor();
     glColor3f(color[0], color[1], color[2]);
@@ -57,6 +66,7 @@ void Collection::draw() {
       glVertex3d(x, y, z);
     }
     glEnd();
+    */
   }
 }
 
