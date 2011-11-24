@@ -15,7 +15,7 @@ class SceneInstance {
   bool computeColor(vec3 &color, int time = 0); /* get the instance's color; returns false if no color specified */
   bool computeTransform(mat4 &mat, int time = 0); /* get the instances's transform; returns false if no transform specified */
   //bool computeLOD(int &lod, int time = 0); /* get the instances's LOD, returns false if no LOD specified */
-  // bool computeTexture(string &texture);
+  bool computeTexture(string &texture);
   class SceneGroup *getChild(); /* get the group which is a child of this instance */
 
   virtual ~SceneInstance();
@@ -32,7 +32,7 @@ class SceneInstance {
   vector<Transform *> _transforms;
   Color * _color;
   //LOD * _lod;
-  //string _texName;
+  string _texName;
   SceneGroup * _child;
 
   friend class SceneLoader;

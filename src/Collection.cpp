@@ -45,9 +45,9 @@ void Collection::draw() {
   for (int i = 0; i < _faces.size(); i++) {
     Polygon * currentFace = _faces[i];
     
-    if (currentFace->getTexName() != "") {
-      vector<vec2> currentTexCoordinates = currentFace->getTexCoordinates();
+    if (currentFace->getTexName() != "noTexture" && currentFace->getTexName() != "") {
       string texName = currentFace->getTexName();
+      std::cout << "loading " + texName << std::endl;
       currentFace->polyLoadTexture(texName);
     }
     currentFace->draw();

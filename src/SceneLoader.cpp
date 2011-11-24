@@ -325,25 +325,30 @@ bool SceneLoader::doM(istream &str, string &name) {
 	    temp.push_back(Vertex(x, y, z));
           }
 	} else if (cmd == "f") {
-	
+	  bool texFlag = false;
 	  str.get(); // get rid of white space
 	  char nextChar = str.peek();
 	  if (!((nextChar >= '0') && (nextChar <= '9'))) {
 	    string fcmd;
 	    findOpenParen(str);
 	    if (readCommand(str, fcmd)) {
-	      
+
 	      if (fcmd == "surf") {
 		//load the texture
-		
 		string textureName;
-	        textureName = getString(str);
-		std::cout << "textureName: " + textureName << std::endl;
+		textureName = getString(str);
+		texFlag = true;
+		std::cout << "texture accquired: " + _savedTextures[textureName] << std::endl;
 		n->_poly->setTexName(_savedTextures[textureName]);
-	      } 
+	      }
+	    }
+	  }
+	  if (!texFlag) {
+	    n->_poly->setTexName("noTexture");
+	  }
 	      string line;
 	      getline(str, line);
-	      
+
 	      stringstream ss(stringstream::in | stringstream::out);
 	      ss.str(line);
 	      while (!ss.eof()) {
@@ -352,7 +357,7 @@ bool SceneLoader::doM(istream &str, string &name) {
 		if (elem == ")") {
 		  continue;
 		}
-		
+
 		string tempVertIndex = "";
 		int elemIndex;
 		for (elemIndex = 0; elemIndex < elem.size(); elemIndex++) {
@@ -362,10 +367,10 @@ bool SceneLoader::doM(istream &str, string &name) {
 		    tempVertIndex = tempVertIndex + elem[elemIndex];
 		  }
 		}
-		
+
 		size_t endIndex = elem.size() - elemIndex - 2;
 		string texCoords = elem.substr(elemIndex + 1, endIndex);
-		
+
 		endIndex = texCoords.find(",");
 		string sTempVal = "";
 		string tTempVal = "";
@@ -377,7 +382,7 @@ bool SceneLoader::doM(istream &str, string &name) {
 		  }
 		  sTempVal = sTempVal + texCoords[i];
 		}
-		
+
 		char s[sizeof(sTempVal)];
 		char t[sizeof(tTempVal)];
 		for (int i = 0; i < sTempVal.size(); i++) {
@@ -386,19 +391,19 @@ bool SceneLoader::doM(istream &str, string &name) {
 		for (int i = 0; i < tTempVal.size(); i++) {
 		  t[i] = tTempVal[i];
 		}
-		
-	        double sVal = atof(s);
+
+		double sVal = atof(s);
 		double tVal = atof(t);
-		
+
 		vec2 textureCoord = vec2(sVal, tVal);
-	       
+
 		char tVIndex[sizeof(tempVertIndex)];
 		for (int i = 0; i < tempVertIndex.size(); i++) {
 		  tVIndex[i] = tempVertIndex[i];
 		}
-		
+
 		int vertIndex = atoi(tVIndex) - 1;
-		
+
 		std::cout << "textureCoord: " << textureCoord << std::endl;
 		std::cout << "vertIndex: " << temp[vertIndex].getPos() << std::endl;
 		n->_poly->addTexCoordinate(textureCoord);
@@ -406,7 +411,8 @@ bool SceneLoader::doM(istream &str, string &name) {
 		n->_poly->addVertex(&temp[vertIndex]);
 	      }
 	      str.putback(')');
-	    } else {
+	}
+	/*else {
 	      *err << "invalid args for f"; errLine(str.tellg());
 	    }
 	  } else {   
@@ -423,13 +429,13 @@ bool SceneLoader::doM(istream &str, string &name) {
 	      }
 	    }
 	  }
-	}
+	*/
+      
 	findCloseParen(str);
       }
     }
   } while (true);
 }
-
 
 SceneInstance* SceneLoader::doI(istream &str, string &name) {
   name = getString(str);
@@ -450,6 +456,10 @@ SceneInstance* SceneLoader::doI(istream &str, string &name) {
   instances.push_back(n); //nodes[name] = n;
   n->_name = name;
   n->_child = groups[var];
+  
+  if (var == "square") {
+    std::cout << "im a square: " + n->_child->getPolygon()->getTexName() << std::endl;
+  }
 
   do {
     int state = findOpenOrClosedParen(str);
@@ -520,7 +530,8 @@ SceneInstance* SceneLoader::doI(istream &str, string &name) {
 	else if (cmd == "surf") {
 	  string surfRef;
 	  if (readCommand(str, surfRef)) {
-	    //n->_texName =_savedTextures[surfRef]);
+	    n->_texName =_savedTextures[surfRef];
+	    std::cout << "replaced texture with: " << n->_texName << std::endl;
 	  }
 	}
 	else if (cmd == "color") {
@@ -532,16 +543,6 @@ SceneInstance* SceneLoader::doI(istream &str, string &name) {
 	  if (!((nextChar >= '0') && (nextChar <= '9'))) {
 	    lookup = true;
 	  }
-
-	  std::cout << nextChar << std::endl;
-	  //for (map<string, Color*>::iterator it; it != _savedColors.end(); it++) {
-	    //if (it->first[0] == nextChar) {
-	    //  lookup = true;
-	    //}
-	    //if (it->first == nextString) {
-	    //  lookup = true;
-	    //}
-	  //}
 	  if (lookup) {
 	    string colorRef;
 	    if (readCommand(str, colorRef)) {
@@ -562,8 +563,11 @@ SceneInstance* SceneLoader::doI(istream &str, string &name) {
 		c->_color[i] = values[i];
 	    }
 	  }
-	  if (c != NULL)
+	  if (c != NULL) {
 	    n->_color = c;
+	    n->_texName = "noTexture";
+	    std::cout << "replaced with color, texture set to noTexture" << std::endl;
+	  }
 	}
 	else {
 	  *err << "Error: command " << cmd << " not recognized at ";

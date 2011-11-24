@@ -38,25 +38,24 @@ void setupView() {
 }
 
 
-void RenderInstance(SceneInstance *n, vec3 color) {
+void RenderInstance(SceneInstance *n, vec3 color, string texture) {
   glPushMatrix();
 
   // color                                                                              
   float r, g, b;
-  if (n->computeColor(color)) {
+  bool colorFlag = n->computeColor(color);
+  if (colorFlag) {
     r = color[0];
     g = color[1];
     b = color[2];
   }
-  //glColor3f(r, g, b);
-  /*
-  string texName = NULL;
+  
+  // texture
+  string texName;
   if (n->computeTexture(texture)) {
     texName = texture;
   }
-  */
-  //string texName = n->getTexName();
-  //std::cout << texName << std::endl;
+  std::cout << "texture: " + texture << std::endl;
 
   // transformations                                                                    
   mat4 transformMatrix;
@@ -71,8 +70,6 @@ void RenderInstance(SceneInstance *n, vec3 color) {
     }
     glMultMatrixd(matrix);
   }
-  //transformMatrix = transformMatrix * tMat;
-  //std::cout << transformMatrix << std::endl;
   GLdouble mat[16];
   mat4 tMat;
   glGetDoublev(GL_PROJECTION_MATRIX, mat);
@@ -83,22 +80,21 @@ void RenderInstance(SceneInstance *n, vec3 color) {
       k++;
     }
   }
-  //std::cout << tMat << std::endl;
+
   if (n->getChild() != NULL) {
     SceneGroup * child = n->getChild();    
     if (child->getPolygon() != NULL) {      
-      //child->getPolygon()->draw(GL_POLYGON);
-      // collection->addFace(child->getPolygon());
-      vector<Vertex> tempVerts = child->getPolygon()->getCoordinates();
-      string texName = child->getPolygon()->getTexName();
-      vector<vec2> texCoords = child->getPolygon()->getTexCoordinates();
-      
       Polygon * newPolygon = new Polygon();
-      newPolygon->setTexName(texName);
+
+      newPolygon->setTexName(texture);
+      newPolygon->setColor(color);
+      
+      vector<vec2> texCoords = child->getPolygon()->getTexCoordinates();
       for (int i = 0; i < texCoords.size(); i++) {
 	newPolygon->addTexCoordinate(texCoords[i]);
       }
 
+      vector<Vertex> tempVerts = child->getPolygon()->getCoordinates();
       double centroidX, centroidY, centroidZ;
       centroidX = 0;
       centroidY = 0;
@@ -106,21 +102,24 @@ void RenderInstance(SceneInstance *n, vec3 color) {
       int numVerts = tempVerts.size();
       for (int i = 0; i < numVerts; i++) {
 	Vertex tempVert = tempVerts[i];
+
 	vec3 tempVPos = tempVert.getPos();
 	double x, y, z;
 	x = tempVPos[0];
 	y = tempVPos[1];
 	z = tempVPos[2];
+	
 	vec4 transformVert = vec4(x, y, z, 1);
 	transformVert = tMat * transformVert;
-	//std::cout << transformVert << std::endl;
 	double pX, pY, pZ;
 	pX = transformVert[0];
 	pY = transformVert[1];
 	pZ = transformVert[2];
+
 	centroidX = centroidX + pX;
 	centroidY = centroidY + pY;
 	centroidZ = centroidZ + pZ;
+
 	Vertex * newVert = new Vertex(pX, pY, pZ);
 	newPolygon->addVertex(newVert);
 	collection->addVertex(newVert);
@@ -130,18 +129,12 @@ void RenderInstance(SceneInstance *n, vec3 color) {
       centroidZ = centroidZ/numVerts;
       Vertex * cent = new Vertex(centroidX, centroidY, centroidZ);
       newPolygon->addCentroid(cent);
-      newPolygon->setColor(color);
       collection->addFace(newPolygon);
     }
     
     // goes through all children                                                  
     for (int i = 0; i < child->getChildCount(); i++) {
-      //mat4 tMat;
-      //child->getChild(i)->computeTransform(tMat);
-      RenderInstance(child->getChild(i), color);
-      //if (!(child->getChild(i)->computeTransform(tMat))) {
-      //RenderInstance(child->getChild(i), color);
-      //} 
+      RenderInstance(child->getChild(i), color, texture);
     }
   }
   glPopMatrix();
@@ -173,12 +166,19 @@ void display() {
   //p->setColor(vec3(1.0, 0.0, 0.0));
   p->draw();
   */
+  
+  //collection->draw();
 
-  collection = new Collection();
-  RenderInstance(scene->getRoot(), vec3(1,1,1));
-  //std::cout << "drawing polygons in scene" << std::endl;
-  collection->draw();
-  //std::cout << (scene->getPolys()).size() << std::endl;
+  vector<Polygon *> faces = collection->getFaces();
+  for (int i = 0; i < faces.size(); i++) {
+    Polygon * currentFace = faces[i];
+
+    if (currentFace->getTexName() != "noTexture" && currentFace->getTexName() != "") {
+      string texName = currentFace->getTexName();
+      currentFace->polyLoadTexture(texName);
+    }
+    currentFace->draw();
+  }
 
   glutSwapBuffers();
 }
@@ -278,6 +278,10 @@ int main(int argc, char** argv) {
     exit(1);                                                                             
   }
 
+  glMatrixMode(GL_PROJECTION);                                                                  
+  glLoadIdentity();                                                                              
+  // flatten scene!
+  RenderInstance(scene->getRoot(), vec3(1,1,1), "noTexture");
 
   glutMainLoop();
 }

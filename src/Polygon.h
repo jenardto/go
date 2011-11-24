@@ -9,7 +9,7 @@
 
 class Polygon {
   
-  GLuint tex;
+  GLuint tex; // move texture loading to main
   
  public:
   Polygon();
