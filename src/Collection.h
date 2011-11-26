@@ -5,6 +5,8 @@
 
 #include "global.h"
 #include "Polygon.h"
+#include "Texture.h"
+#include <map>
 
 class Collection {
  public:
@@ -20,6 +22,9 @@ class Collection {
   
   vector<Vertex *> getVertices() { return _vertices; }
   vector<Polygon *> getFaces() { return _faces; }
+
+  map<string, Texture *> getLoadedTextures() { return _loadedTextures; }
+  void addLoadedTexture(string texName, Texture * texObj);
   
   int totalVerts() { return _numOfVertices; }
 
@@ -27,6 +32,7 @@ class Collection {
   int _numOfVertices;
   vector<Vertex *> _vertices;
   vector<Polygon *> _faces;
+  map<string, Texture *> _loadedTextures;
 };
 
 #endif /* COLLECTION_H_ */

@@ -21,7 +21,7 @@ class Scene {
   friend class SceneLoader;
   SceneInstance *_root; // The starting point for traversing the scene DAG
   SceneLoader *_loader; // Loader handles the file reading bits
-  
+
   // private copy constructor and assignment operator to avoid copying this data
   Scene(const Scene&);
   Scene& operator=(const Scene&);

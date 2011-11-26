@@ -9,7 +9,7 @@
 
 class Polygon {
   
-  GLuint tex; // move texture loading to main
+  // GLuint tex; // move texture loading to main
   
  public:
   Polygon();
@@ -45,7 +45,7 @@ class Polygon {
   //map<string, Face *> getFaces() { return _namedfaces; }
   void setTexName(string texName) { _textureName = texName; }
   string getTexName() { return _textureName; }
-  bool polyLoadTexture(string textureFile);
+  //bool polyLoadTexture(string textureFile);
 
  private:
   bool _parseLine(string, vector<Vertex> &);

@@ -47,8 +47,10 @@ void Collection::draw() {
     
     if (currentFace->getTexName() != "noTexture" && currentFace->getTexName() != "") {
       string texName = currentFace->getTexName();
-      std::cout << "loading " + texName << std::endl;
-      currentFace->polyLoadTexture(texName);
+      Texture * currentTexture =_loadedTextures[texName];
+      glBindTexture(GL_TEXTURE_2D, currentTexture->getTex());
+      //std::cout << "loading " + texName << std::endl;
+      //currentFace->polyLoadTexture(texName);
     }
     currentFace->draw();
     
@@ -77,4 +79,8 @@ void Collection::addVertex(Vertex * v) {
 
 void Collection::addFace(Polygon * f) {
   _faces.push_back(f);
+}
+
+void Collection::addLoadedTexture(string texName, Texture * texObj) {
+  _loadedTextures[texName] = texObj;
 }

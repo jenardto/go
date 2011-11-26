@@ -56,6 +56,21 @@ void RenderInstance(SceneInstance *n, vec3 color, string texture) {
     texName = texture;
   }
   std::cout << "texture: " + texture << std::endl;
+  bool textureAlreadyLoaded = false;
+  map<string, Texture *> loadedTextures = collection->getLoadedTextures();
+  for (map<string, Texture *>::iterator it = loadedTextures.begin(); 
+       it != loadedTextures.end(); it++) {
+    string key = (*it).first;
+    if (texture == key) {
+      textureAlreadyLoaded = true;
+    }
+  }
+  if (!textureAlreadyLoaded) {
+    Texture * newTexture = new Texture();
+    newTexture->setName(texture);
+    newTexture->polyloadTexture(texture);
+    collection->addLoadedTexture(texture, newTexture);
+  }
 
   // transformations                                                                    
   mat4 transformMatrix;
@@ -167,8 +182,8 @@ void display() {
   p->draw();
   */
   
-  //collection->draw();
-
+  collection->draw();
+  /*
   vector<Polygon *> faces = collection->getFaces();
   for (int i = 0; i < faces.size(); i++) {
     Polygon * currentFace = faces[i];
@@ -179,7 +194,7 @@ void display() {
     }
     currentFace->draw();
   }
-
+  */
   glutSwapBuffers();
 }
 

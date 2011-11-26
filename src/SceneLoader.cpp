@@ -260,7 +260,6 @@ bool SceneLoader::doSurface(istream &str, string& name) {
 	} else if (cmd == "bitmap") {
 	  // something with loading textures
 	  string file = getQuoted(str);
-	  std::cout << file << std::endl;
 	  _savedTextures[name] = file;
 	}
 	findCloseParen(str);

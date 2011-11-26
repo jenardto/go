@@ -37,3 +37,7 @@ Scene::Scene(string filename) {
 Scene::~Scene() {
     delete _loader;
 }
+
+//Scene::addTexture(string texName, Texture texture) {
+//  _textures[texName] = texture;
+//}

@@ -8,6 +8,7 @@
 #include "global.h"
 
 #include "Collection.h"
+#include "Texture.h"
 #include "Polygon.h"
 #include "ParametricValue.h"
 #include "Scene.h"

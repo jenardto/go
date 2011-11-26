@@ -97,7 +97,7 @@ void Polygon::draw(GLenum mode) {
     glEnable(GL_TEXTURE_2D);
     glColor3f(1.0, 1.0, 1.0);
     //glActiveTexture(GL_TEXTURE0);                                                
-    glBindTexture(GL_TEXTURE_2D, tex);
+    //glBindTexture(GL_TEXTURE_2D, tex);
 
     glBegin(GL_POLYGON);
     for (int i = 0; i < _texCoordinates.size(); i++) {
@@ -112,8 +112,9 @@ void Polygon::draw(GLenum mode) {
 void Polygon::addVertex(Vertex * v) {
   _vertices.push_back(*v);
 }
-
+/*
 bool Polygon::polyLoadTexture(string textureFile) {
   bool texloaded = loadTexture(textureFile, tex);
   return texloaded;
 }
+*/
