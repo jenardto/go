@@ -455,10 +455,6 @@ SceneInstance* SceneLoader::doI(istream &str, string &name) {
   instances.push_back(n); //nodes[name] = n;
   n->_name = name;
   n->_child = groups[var];
-  
-  if (var == "square") {
-    std::cout << "im a square: " + n->_child->getPolygon()->getTexName() << std::endl;
-  }
 
   do {
     int state = findOpenOrClosedParen(str);

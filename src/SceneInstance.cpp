@@ -40,8 +40,12 @@ bool SceneInstance::computeColor(vec3 &color, int time)
 
 bool SceneInstance::computeTexture(string &texture)
 {
-  texture = _texName;
-  return true;
+  if (_texName == "") {
+    return false;
+  } else {
+    texture = _texName;
+    return true;
+  }
   /*
   if (_texName == "noTexture") {
     texture = _texName;
