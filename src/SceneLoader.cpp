@@ -324,6 +324,7 @@ bool SceneLoader::doM(istream &str, string &name) {
 	    temp.push_back(Vertex(x, y, z));
           }
 	} else if (cmd == "f") {
+	  /*
 	  bool texFlag = false;
 	  str.get(); // get rid of white space
 	  char nextChar = str.peek();
@@ -345,16 +346,19 @@ bool SceneLoader::doM(istream &str, string &name) {
 	  if (!texFlag) {
 	    n->_poly->setTexName("noTexture");
 	  }
+	  */
 	      string line;
 	      getline(str, line);
-
+	      std::cout << line << std::endl;
 	      stringstream ss(stringstream::in | stringstream::out);
 	      ss.str(line);
 	      while (!ss.eof()) {
+		std::cout << "in loop" << std::endl;
 		string elem;
 		ss >> elem;
+		std::cout << "elem: " + elem << std::endl;
 		if (elem == ")") {
-		  continue;
+		  break;
 		}
 
 		string tempVertIndex = "";
@@ -369,7 +373,7 @@ bool SceneLoader::doM(istream &str, string &name) {
 
 		size_t endIndex = elem.size() - elemIndex - 2;
 		string texCoords = elem.substr(elemIndex + 1, endIndex);
-
+		std::cout << texCoords << std::endl; ////
 		endIndex = texCoords.find(",");
 		string sTempVal = "";
 		string tTempVal = "";
@@ -377,6 +381,7 @@ bool SceneLoader::doM(istream &str, string &name) {
 		  if (texCoords[i] == ',' ) {
 		    endIndex = texCoords.size() - i - 1;
 		    tTempVal = texCoords.substr(i + 1, endIndex);
+		    std::cout << "tTempVal: " + tTempVal << std::endl; ////
 		    break;
 		  }
 		  sTempVal = sTempVal + texCoords[i];
@@ -403,13 +408,16 @@ bool SceneLoader::doM(istream &str, string &name) {
 
 		int vertIndex = atoi(tVIndex) - 1;
 
-		std::cout << "textureCoord: " << textureCoord << std::endl;
-		std::cout << "vertIndex: " << temp[vertIndex].getPos() << std::endl;
+		//std::cout << "textureCoord: " << textureCoord << std::endl;
+		//std::cout << "vertIndex: " << temp[vertIndex].getPos() << std::endl;
 		n->_poly->addTexCoordinate(textureCoord);
 		temp[vertIndex].setTextureCoord(textureCoord);
 		n->_poly->addVertex(&temp[vertIndex]);
+		std::cout << "why? :( " << std::endl;
 	      }
+	      std::cout << "mesh added" << std::endl;
 	      str.putback(')');
+	      std::cout << "pushed ) back" << std::endl;
 	}
 	/*else {
 	      *err << "invalid args for f"; errLine(str.tellg());
