@@ -242,14 +242,59 @@ void mergeVertices() {
       if (j == 0) {
 	// need todo: check to make sure that neighbors not already added
 	std::cout << "0 case" << std::endl;
-	curVert->addNeighbor(curFaceVerts[1]);
-	curFaceVerts[1]->addNeighbor(curVert);
-	curVert->addNeighbor(curFaceVerts[curFaceVerts.size() - 1]);
-	curFaceVerts[curFaceVerts.size() - 1]->addNeighbor(curVert);
+	bool addNeighbor1 = true;
+	bool addNeighbor2 = true;
+	for (int k = 0; k < curVert->getNeighbors().size(); k++) {
+	  if (curFaceVerts[1]->equals(curVert->getNeighbors()[k])) {
+	    addNeighbor1 = false;
+	  }
+	  if (curFaceVerts[curFaceVerts.size() - 1]->equals(curVert->getNeighbors()[k])) {
+	    addNeighbor2 = false;
+	  }
+	}
+	if (addNeighbor1) {
+	  curVert->addNeighbor(curFaceVerts[1]);
+	}
+	if (addNeighbor2) {
+	  curVert->addNeighbor(curFaceVerts[curFaceVerts.size() - 1]);
+	}
+	bool addNeighbor3 = true;
+	for (int k = 0; k < curFaceVerts[1]->getNeighbors().size(); k++) {
+	  if (curVert->equals(curFaceVerts[1]->getNeighbors()[k])){
+	    addNeighbor3 = false;
+	  }
+	}
+	if (addNeighbor3) {
+	  curFaceVerts[1]->addNeighbor(curVert);
+	}
+	bool addNeighbor4 = true;
+	for (int k = 0; k < curFaceVerts[curFaceVerts.size() - 1]->getNeighbors().size(); k++) {
+	  if (curVert->equals(curFaceVerts[curFaceVerts.size() - 1]->getNeighbors()[k])) {
+	    addNeighbor4 = false;
+	  }
+	}
+	if (addNeighbor4) {
+	  curFaceVerts[curFaceVerts.size() - 1]->addNeighbor(curVert);
+	}
       } else {
-	std::cout << "all other case" << std::endl;
-	curVert->addNeighbor(curFaceVerts[j + 1]);
-	curFaceVerts[j + 1]->addNeighbor(curVert);
+	bool addNeighbor1 = true;
+	for (int k = 0; k < curVert->getNeighbors().size(); k++) {
+	  if (curFaceVerts[j + 1]->equals(curVert->getNeighbors()[k])) {
+	    addNeighbor1 = false;
+	  }
+	}
+	if (addNeighbor1) {
+	  curVert->addNeighbor(curFaceVerts[j + 1]);
+	}
+	bool addNeighbor2 = true;
+	for (int k = 0; k < curFaceVerts[j + 1]->getNeighbors().size(); k++) {
+	  if (curVert->equals(curFaceVerts[j + 1]->getNeighbors()[k])) {
+	    addNeighbor2 = false;
+	  }
+	}
+	if (addNeighbor2) {
+	  curFaceVerts[j + 1]->addNeighbor(curVert);
+	}
       }
     }
   }
