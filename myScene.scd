@@ -31,7 +31,7 @@
 )
 
 (g corner
-   (i i1 foo (rot 180 1 0 0) (t 0.25 0.25 -0.5)) #(color 0.0 0.0 1.0))
+   (i i1 foo (rot 180 1 0 0) (t 0.25 0.25 -0.5) (color 0.0 0.0 1.0))
    (i i2 foo (rot -90 1 0 0) (t 0.25 0.5 -0.25)) #(surf colorLizard)) #(color 0.0 1.0 0.0))
    (i i3 square (rot 90 0 1 0) (t 0.5 0.25 -0.25)) #(surf textureName))
 )

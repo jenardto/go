@@ -1,19 +1,19 @@
-/* Polygon.cpp */
+/* Face.cpp */
 
-#include "Polygon.h"
+#include "Face.h"
 #include "LoadImage.h"
 
-Polygon::Polygon() {
+Face::Face() {
 }
 
-Polygon::Polygon(vector<Vertex> vertices) {
+Face::Face(vector<Vertex *> vertices) {
   for (int i = 0; i < vertices.size(); i++) {
     _vertices.push_back(vertices[i]);
   }
 }
 
-Polygon::Polygon(string fileName) {
-  vector<Vertex> tempVerts;
+Face::Face(string fileName) {
+  vector<Vertex*> tempVerts;
   ifstream file(fileName.c_str(), ifstream::in);
   if (!file) {
     std::cout << "Could not open given obj file " << fileName << std::endl;
@@ -33,20 +33,20 @@ Polygon::Polygon(string fileName) {
             << endl;
 }
 
-bool Polygon::onMyPoly(Vertex vert) {
+bool Face::onMyPoly(Vertex * vert) {
   for (int i = 0; i < _vertices.size(); i++) {
-    if (_vertices[i].equals(vert)) {
+    if (_vertices[i]->equals(vert)) {
       return true;
     }
   }
   return false;
 }
 
-void Polygon::addTexCoordinate(vec2 uv) {
+void Face::addTexCoordinate(vec2 uv) {
   _texCoordinates.push_back(uv);
 }
 
-bool Polygon::_parseLine(string line, vector<Vertex> & temp) {
+bool Face::_parseLine(string line, vector<Vertex*> & temp) {
   string operand;
   bool success = true;
   if (line.empty())
@@ -59,7 +59,7 @@ bool Polygon::_parseLine(string line, vector<Vertex> & temp) {
   } else if (operand == "v") {
     double x, y, z;
     ss >> x >> y >> z;
-    temp.push_back(Vertex(x, y, z));
+    temp.push_back(new Vertex(x, y, z));
   } else if (operand == "f") {
     while (!ss.eof()) {
       int i;
@@ -81,7 +81,7 @@ bool Polygon::_parseLine(string line, vector<Vertex> & temp) {
 }
 
 
-void Polygon::draw(GLenum mode) {
+void Face::draw(GLenum mode) {
   if (1 > _vertices.size())
     return;
   if (_textureName == "noTexture" || _textureName == "") {
@@ -90,7 +90,7 @@ void Polygon::draw(GLenum mode) {
     glBegin(GL_POLYGON);
     for (int i = 0; i < _texCoordinates.size(); i++) {                                           
       vec2 texPos = _texCoordinates[i];                                                         
-      glVertex3d(_vertices[i].getPos()[0], _vertices[i].getPos()[1], _vertices[i].getPos()[2]);   
+      glVertex3d(_vertices[i]->getPos()[0], _vertices[i]->getPos()[1], _vertices[i]->getPos()[2]);   
     } 
     glEnd();
   } else {
@@ -103,17 +103,17 @@ void Polygon::draw(GLenum mode) {
     for (int i = 0; i < _texCoordinates.size(); i++) {
       vec2 texPos = _texCoordinates[i];
       glTexCoord2d(GLdouble(texPos[0]), GLdouble(texPos[1]));
-      glVertex3d(_vertices[i].getPos()[0], _vertices[i].getPos()[1], _vertices[i].getPos()[2]);
+      glVertex3d(_vertices[i]->getPos()[0], _vertices[i]->getPos()[1], _vertices[i]->getPos()[2]);
     }
     glEnd();
   }
 }
 
-void Polygon::addVertex(Vertex v) {
+void Face::addVertex(Vertex * v) {
   _vertices.push_back(v);
 }
 /*
-bool Polygon::polyLoadTexture(string textureFile) {
+bool Face::polyLoadTexture(string textureFile) {
   bool texloaded = loadTexture(textureFile, tex);
   return texloaded;
 }

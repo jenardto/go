@@ -17,7 +17,8 @@ public:
 Viewport viewport;
 Scene * scene;
 Collection * collection;
-Vertex * tempVertex;
+Collection * prevCollection;
+bool showPrevCollection;
 int button, state, xOrigin, yOrigin;
 UCB::ImageSaver * imgSaver;
 
@@ -36,6 +37,7 @@ void setupView() {
   glTranslatef(0,0,-3);
   applyMat4(viewport.orientation);
 }
+
 
 
 void RenderInstance(SceneInstance *n, vec3 color, string texture) {
@@ -99,14 +101,14 @@ void RenderInstance(SceneInstance *n, vec3 color, string texture) {
   if (n->getChild() != NULL) {
     SceneGroup * child = n->getChild();    
     if (child->getPolygon() != NULL) {      
-      Polygon * newPolygon = new Polygon();
+      Face * newFace = new Face();
 
-      newPolygon->setTexName(texture);
-      newPolygon->setColor(color);
+      newFace->setTexName(texture);
+      newFace->setColor(color);
       
       vector<vec2> texCoords = child->getPolygon()->getTexCoordinates();
       for (int i = 0; i < texCoords.size(); i++) {
-	newPolygon->addTexCoordinate(texCoords[i]);
+	newFace->addTexCoordinate(texCoords[i]);
       }
 
       vector<Vertex> tempVerts = child->getPolygon()->getCoordinates();
@@ -136,15 +138,37 @@ void RenderInstance(SceneInstance *n, vec3 color, string texture) {
 	centroidZ = centroidZ + pZ;
 
 	Vertex * newVert = new Vertex(pX, pY, pZ);
-	newPolygon->addVertex(newVert);
-	collection->addVertex(newVert);
+	newFace->addVertex(newVert);
+       
+	vector<Vertex*> colCurVerts = collection->getVertices();
+	bool addToCollection = true;
+	for (int k = 0; k < colCurVerts.size(); k++) {
+	  if (colCurVerts[k]->equals(tempVert)) {
+	    addToCollection = false;
+	  }
+	}
+	if (addToCollection) {
+	  collection->addVertex(newVert);
+	}
+	/*
+	bool addToCollection = true;
+	for (int i = 0; i < collection->getVertices().size(); i++) {
+	  Vertex cv = collection->getVertices()[i];
+	  if (cv.equals(newVert)) {
+	    addToCollection = false;
+	  }
+	}
+	if (addToCollection) {
+	  collection->addVertex(newVert);
+	}
+	*/
       }
       centroidX = centroidX/numVerts;
       centroidY = centroidY/numVerts;
       centroidZ = centroidZ/numVerts;
       Vertex * cent = new Vertex(centroidX, centroidY, centroidZ);
-      newPolygon->addCentroid(cent);
-      collection->addFace(newPolygon);
+      newFace->addCentroid(cent);
+      collection->addFace(newFace);
     }
     
     // goes through all children                                                  
@@ -153,6 +177,84 @@ void RenderInstance(SceneInstance *n, vec3 color, string texture) {
     }
   }
   glPopMatrix();
+}
+
+void mergeVertices() {
+  vector<Vertex*> mergedVertices;
+  vector<Vertex*> allVertices = collection->getVertices();
+  std::cout << "in merging: " << allVertices.size()  << std::endl;
+  for (int i = 0; i < allVertices.size(); i++) {
+    bool addToCollection = true;
+    for (int j = 0; j < mergedVertices.size(); j++) {
+      if (mergedVertices[j]->equals(allVertices[i])) {
+	addToCollection = false;
+      }
+    }
+    if (addToCollection) {
+      mergedVertices.push_back(allVertices[i]);
+      int newIndex = mergedVertices.size() - 1;
+      mergedVertices[newIndex]->setIndex(newIndex);
+    }
+  }
+  collection->setVertices(mergedVertices);
+  std::cout << "numMergedVerts: " << mergedVertices.size() << std::endl;
+  // make faces of each polygon in collection be pointers to mergedVertices
+  vector<Face *> newFaces;
+  vector<Face *> colCurFaces = collection->getFaces();
+  for (int i = 0; i < colCurFaces.size(); i++) {
+    Face * newFace = new Face();
+    newFace->setTexName(colCurFaces[i]->getTexName());
+    newFace->setColor(colCurFaces[i]->getColor());
+    newFace->addCentroid(colCurFaces[i]->getCentroid());
+    for (int j = 0; j < colCurFaces[i]->getTexCoordinates().size(); j++) {
+      newFace->addTexCoordinate(colCurFaces[i]->getTexCoordinates()[j]);
+    }
+    vector<Vertex *> curFaceVerts = colCurFaces[i]->getCoordinates();
+    for (int j = 0; j < curFaceVerts.size(); j++) {
+      for (int k = 0; k < mergedVertices.size(); k++) {
+	if (curFaceVerts[j]->equals(mergedVertices[k])) {
+	  mergedVertices[k]->addCentroid(colCurFaces[i]->getCentroid());
+	  newFace->addVertex(mergedVertices[k]);
+	  std::cout << "added vertex to newFace" << std::endl;
+	  break;
+	}
+      }
+    }
+    newFaces.push_back(newFace);
+  }
+  std::cout << "setting faces size of newFaces: " << newFaces.size()  << std::endl;
+  collection->setFaces(newFaces);
+  for (int i = 0; i < newFaces.size(); i ++) {
+    std::cout << "face: " << std::endl;
+    for (int j = 0; j < newFaces[i]->getCoordinates().size(); j++) {
+      std::cout << newFaces[i]->getCoordinates()[j]->getPos() << std::endl;
+    }
+  }
+
+  std::cout << "about to add vertex neighbors" << std::endl;
+  // add vertex neighbors
+  for (int i = 0; i < newFaces.size(); i++) {
+    std::cout << "int i loop" << std::endl;
+    vector<Vertex *> curFaceVerts = newFaces[i]->getCoordinates();
+    for (int j = 0; j < curFaceVerts.size() - 1; j++) {
+      std::cout << "int j loop" << std::endl;
+      Vertex * curVert = curFaceVerts[j];
+      if (j == 0) {
+	// need todo: check to make sure that neighbors not already added
+	std::cout << "0 case" << std::endl;
+	curVert->addNeighbor(curFaceVerts[1]);
+	curFaceVerts[1]->addNeighbor(curVert);
+	curVert->addNeighbor(curFaceVerts[curFaceVerts.size() - 1]);
+	curFaceVerts[curFaceVerts.size() - 1]->addNeighbor(curVert);
+      } else {
+	std::cout << "all other case" << std::endl;
+	curVert->addNeighbor(curFaceVerts[j + 1]);
+	curFaceVerts[j + 1]->addNeighbor(curVert);
+      }
+    }
+  }
+  
+
 }
 
 
@@ -217,6 +319,22 @@ void myKeyboardFunc(unsigned char key, int x, int y) {
     exit(0);
     break;
   }
+
+  if (key == 'p') {
+    if (showPrevCollection) {
+      showPrevCollection = false;
+      std::cout << "showPrevCollection off" << std::endl;
+    } else {
+      showPrevCollection = true;
+      std::cout << "showPrevCollection on" << std::endl;
+    }
+  }
+  
+  if (key == 's') {
+    prevCollection = new Collection(collection->getFaces(), collection->getVertices());
+    collection->subDivide();
+  }
+
 }
 
 void myActiveMotionFunc(int x, int y) {
@@ -255,6 +373,7 @@ int main(int argc, char** argv) {
   imgSaver = new UCB::ImageSaver("./", "go");
   collection = new Collection();
   scene = new Scene(argv[1]);
+  showPrevCollection = false;
 
   //Create OpenGL Window
   glutInitWindowSize(viewport.w,viewport.h);
@@ -297,6 +416,11 @@ int main(int argc, char** argv) {
   glLoadIdentity();                                                                              
   // flatten scene!
   RenderInstance(scene->getRoot(), vec3(1,1,1), "noTexture");
-
+  mergeVertices();
+  for (int i = 0; i < collection->getVertices().size(); i++) {
+    std::cout << collection->getVertices()[i]->getCentroids().size() << std::endl;
+  }
+  //std::cout << "numOfVertices: " << collection->getVertices().size() << std::endl;
+  
   glutMainLoop();
 }

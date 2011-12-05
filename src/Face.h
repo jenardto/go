@@ -1,29 +1,29 @@
-/* Polygon.h */
+/* Face.h */
 
-#ifndef POLYGON_H_
-#define POLYGON_H_
+#ifndef FACE_H_
+#define FACE_H_
 
 #include "global.h"
 #include "Vertex.h"
 #include <map>
 
-class Polygon {
+class Face {
   
   // GLuint tex; // move texture loading to main
   
  public:
-  Polygon();
-  Polygon(string fileName);
-  Polygon(vector<Vertex> vertices);
-  //virtual ~Polygon();
+  Face();
+  Face(string fileName);
+  Face(vector<Vertex *> vertices);
+  //virtual ~Face();
   
   /* from finalProj face class */
   /*****************************/
-  vector<Vertex> getCoordinates() { return _vertices; }
-  bool onMyPoly(Vertex vert);
+  vector<Vertex *> getCoordinates() { return _vertices; }
+  bool onMyPoly(Vertex * vert);
 
-  void addCentroid(Vertex centroid) { _centroid = centroid; }
-  Vertex getCentroid() { return _centroid; }
+  void addCentroid(Vertex * centroid) { _centroid = centroid; }
+  Vertex* getCentroid() { return _centroid; }
 
   void addTexCoordinate(vec2 uv);
   vector<vec2> getTexCoordinates() { return _texCoordinates; }
@@ -31,7 +31,7 @@ class Polygon {
 
   void draw(GLenum mode = GL_LINE_LOOP);
 
-  void addVertex(Vertex v);
+  void addVertex(Vertex * v);
 
   /* Get name of poly */
   string getName() { return _name; }
@@ -48,15 +48,15 @@ class Polygon {
   //bool polyLoadTexture(string textureFile);
 
  private:
-  bool _parseLine(string, vector<Vertex> &);
-  vector<Vertex> _vertices;
+  bool _parseLine(string, vector<Vertex*> &);
+  vector<Vertex *> _vertices;
 
   vec3 _color;
-  Vertex _centroid;
+  Vertex * _centroid;
   //vector<Vertex *> _coordinates;
   vector<vec2> _texCoordinates;
   string _textureName;
   string _name;
 };
 
-#endif /* POLYGON_H_ */
+#endif /* FACE_H_ */

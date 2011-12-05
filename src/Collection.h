@@ -4,24 +4,27 @@
 #define COLLECTION_H_
 
 #include "global.h"
-#include "Polygon.h"
+#include "Face.h"
 #include "Texture.h"
-#include <map>
 
 class Collection {
  public:
   Collection();
   //Collection(const Collection& collection);
   //Collection& operator =(const Collection& collection);
-  Collection(vector<Polygon *> faces, vector<Vertex *> vertices);
+  Collection(vector<Face *> faces, vector<Vertex *> vertices);
   //virtual ~Collection();
 
   void draw();
   void addVertex(Vertex * v);
-  void addFace(Polygon * f);
+  void addFace(Face * f);
+ 
+  void subDivide();
   
+  void setFaces(vector<Face *> faces) { _faces = faces; }
+  void setVertices(vector<Vertex *> vertices) { _vertices = vertices; }
   vector<Vertex *> getVertices() { return _vertices; }
-  vector<Polygon *> getFaces() { return _faces; }
+  vector<Face *> getFaces() { return _faces; }
 
   map<string, Texture *> getLoadedTextures() { return _loadedTextures; }
   void addLoadedTexture(string texName, Texture * texObj);
@@ -31,7 +34,7 @@ class Collection {
  private:
   int _numOfVertices;
   vector<Vertex *> _vertices;
-  vector<Polygon *> _faces;
+  vector<Face *> _faces;
   map<string, Texture *> _loadedTextures;
 };
 

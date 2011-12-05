@@ -412,7 +412,7 @@ bool SceneLoader::doM(istream &str, string &name) {
 		//std::cout << "vertIndex: " << temp[vertIndex].getPos() << std::endl;
 		n->_poly->addTexCoordinate(textureCoord);
 		temp[vertIndex].setTextureCoord(textureCoord);
-		n->_poly->addVertex(&temp[vertIndex]);
+		n->_poly->addVertex(temp[vertIndex]);
 		std::cout << "why? :( " << std::endl;
 	      }
 	      std::cout << "mesh added" << std::endl;

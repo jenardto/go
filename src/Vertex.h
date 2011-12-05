@@ -18,13 +18,15 @@ class Vertex
   void setPos(double x, double y, double z);
 
   int getIndex() { return _index; }
-  
+  void setIndex(int index) { _index = index; }
+
   void addNeighbor(Vertex * newNeighbor);
-  vector<Vertex *> getNeighbors() { return _neighbors; }
+  vector<Vertex*> getNeighbors() { return _neighbors; }
 
   void addCentroid(Vertex * centroid);
-  vector<Vertex *> getCentroids() { return _associatedCentroids; }
+  vector<Vertex*> getCentroids() { return _associatedCentroids; }
 
+  bool equals (Vertex * vert);
   bool equals (Vertex vert);
 
   void setTextureCoord(vec2 uv) { _texCoord = uv; }

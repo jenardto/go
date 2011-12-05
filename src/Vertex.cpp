@@ -34,7 +34,20 @@ void Vertex::setPos(double x, double y, double z) {
   _pos = vec3(x, y, z);
 }
 
+bool Vertex::equals(Vertex * vert) {
+  vec3 vertPos = vert->getPos();
+  double epsilon = 0.001;
+  bool xequals = abs(_pos[0] - vertPos[0]) <= epsilon;
+  bool yequals = abs(_pos[1] - vertPos[1]) <= epsilon;
+  bool zequals = abs(_pos[2] - vertPos[2]) <= epsilon;
+  return xequals && yequals && zequals;
+}
+
 bool Vertex::equals(Vertex vert) {
   vec3 vertPos = vert.getPos();
-  return (_pos[0] == vertPos[0] && _pos[1] == vertPos[1] && _pos[2] == vertPos[2]);
+  double epsilon = 0.01;
+  bool xequals = abs(_pos[0] - vertPos[0]) <= epsilon;
+  bool yequals = abs(_pos[1] - vertPos[1]) <= epsilon;
+  bool zequals = abs(_pos[2] - vertPos[2]) <= epsilon;
+  return xequals && yequals && zequals;
 }
