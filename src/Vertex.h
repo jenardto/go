@@ -36,7 +36,7 @@ class Vertex
   vec3 _pos; 
   int _index;
   vector<Vertex *> _associatedCentroids;
-  vector<Vertex *> _neighbors; // stores index of neighboring vertices
+  vector<Vertex *> _neighbors; // stores neighboring vertices
   vec2 _texCoord; // for use only by the temp centroids
 };
 

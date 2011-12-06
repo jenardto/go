@@ -6,14 +6,12 @@
 #include "global.h"
 #include "Face.h"
 #include "Texture.h"
+#include <map>
 
 class Collection {
  public:
   Collection();
-  //Collection(const Collection& collection);
-  //Collection& operator =(const Collection& collection);
   Collection(vector<Face *> faces, vector<Vertex *> vertices);
-  //virtual ~Collection();
 
   void draw();
   void addVertex(Vertex * v);

@@ -107,9 +107,16 @@ void RenderInstance(SceneInstance *n, vec3 color, string texture) {
       newFace->setColor(color);
       
       vector<vec2> texCoords = child->getPolygon()->getTexCoordinates();
+      double centroidTexCoordsX = 0;
+      double centroidTexCoordsY = 0;
       for (int i = 0; i < texCoords.size(); i++) {
+	centroidTexCoordsX = centroidTexCoordsX + texCoords[i][0];
+	centroidTexCoordsY = centroidTexCoordsY + texCoords[i][1];
 	newFace->addTexCoordinate(texCoords[i]);
       }
+      centroidTexCoordsX = centroidTexCoordsX/texCoords.size();
+      centroidTexCoordsY = centroidTexCoordsY/texCoords.size();
+      vec2 centroidTex = vec2(centroidTexCoordsX, centroidTexCoordsY);
 
       vector<Vertex> tempVerts = child->getPolygon()->getCoordinates();
       double centroidX, centroidY, centroidZ;
@@ -167,6 +174,7 @@ void RenderInstance(SceneInstance *n, vec3 color, string texture) {
       centroidY = centroidY/numVerts;
       centroidZ = centroidZ/numVerts;
       Vertex * cent = new Vertex(centroidX, centroidY, centroidZ);
+      cent->setTextureCoord(centroidTex);
       newFace->addCentroid(cent);
       collection->addFace(newFace);
     }
@@ -234,14 +242,14 @@ void mergeVertices() {
   std::cout << "about to add vertex neighbors" << std::endl;
   // add vertex neighbors
   for (int i = 0; i < newFaces.size(); i++) {
-    std::cout << "int i loop" << std::endl;
+    //std::cout << "int i loop" << std::endl;
     vector<Vertex *> curFaceVerts = newFaces[i]->getCoordinates();
     for (int j = 0; j < curFaceVerts.size() - 1; j++) {
-      std::cout << "int j loop" << std::endl;
+      //std::cout << "int j loop" << std::endl;
       Vertex * curVert = curFaceVerts[j];
       if (j == 0) {
 	// need todo: check to make sure that neighbors not already added
-	std::cout << "0 case" << std::endl;
+	//std::cout << "0 case" << std::endl;
 	bool addNeighbor1 = true;
 	bool addNeighbor2 = true;
 	for (int k = 0; k < curVert->getNeighbors().size(); k++) {
@@ -315,17 +323,21 @@ void display() {
   
   /*
   Polygon * p = new Polygon();
-  p->addVertex(new Vertex(0.25, 0.25, 0.0));
-  p->addVertex(new Vertex(0.25, -0.25, 0.0));
-  p->addVertex(new Vertex(-0.25, -0.25, 0.0));
-  p->addVertex(new Vertex(-0.25, 0.25, 0.0));
-  p->addTexCoordinate(vec2(GLdouble(0.0),GLdouble(0.0)));
-  p->addTexCoordinate(vec2(GLdouble(1.0),GLdouble(0.0)));
-  p->addTexCoordinate(vec2(GLdouble(1.0),GLdouble(1.0)));
-  p->addTexCoordinate(vec2(GLdouble(0.0),GLdouble(1.0)));
-  p->setTexName("lizard.bmp");
-  p->polyLoadTexture("lizard.bmp");
-  //p->setColor(vec3(1.0, 0.0, 0.0));
+  p->addVertex(Vertex(0.0, 0.0, 0.0));
+  p->addVertex(Vertex(-0.5, 0.0, 0.0));
+  p->addVertex(Vertex(-0.5, -0.5, 0.0));
+  p->addVertex(Vertex(0.5, -0.5, 0.0));
+  p->addVertex(Vertex(0.5, 0.5, 0.0));
+  p->addVertex(Vertex(0.0, 0.5, 0.0));
+  p->addTexCoordinate(vec2(GLdouble(0.5),GLdouble(0.25)));
+  p->addTexCoordinate(vec2(GLdouble(0.25),GLdouble(0.25)));
+  p->addTexCoordinate(vec2(GLdouble(0.25),GLdouble(0.5)));
+  p->addTexCoordinate(vec2(GLdouble(0.75),GLdouble(0.5)));
+  p->addTexCoordinate(vec2(GLdouble(0.75),GLdouble(0.0)));
+  p->addTexCoordinate(vec2(GLdouble(0.5),GLdouble(0.0)));
+  //p->setTexName("lizard.bmp");
+  //p->polyLoadTexture("lizard.bmp");
+  p->setColor(vec3(1.0, 0.0, 0.0));
   p->draw();
   */
   
@@ -462,10 +474,18 @@ int main(int argc, char** argv) {
   // flatten scene!
   RenderInstance(scene->getRoot(), vec3(1,1,1), "noTexture");
   mergeVertices();
-  for (int i = 0; i < collection->getVertices().size(); i++) {
-    std::cout << collection->getVertices()[i]->getCentroids().size() << std::endl;
+  /*
+  for (int i = 0; i < collection->getFaces().size(); i++) {
+    std::cout << "face: " << std::endl;
+    for (int j = 0; j < collection->getFaces()[i]->getCoordinates().size(); j++) {
+      std::cout << collection->getFaces()[i]->getCoordinates()[j]->getPos() << std::endl;
+    }
   }
-  //std::cout << "numOfVertices: " << collection->getVertices().size() << std::endl;
-  
+  */
+  for (int i = 0; i < collection->getVertices().size(); i++) {
+    std::cout << collection->getVertices()[i]->getPos() << std::endl;
+  }
+  std::cout << "numOfVertices: " << collection->getVertices().size() << std::endl;
+  std::cout << collection->getFaces().size() << std::endl;
   glutMainLoop();
 }

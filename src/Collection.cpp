@@ -3,35 +3,8 @@
 #include "Collection.h"
 
 Collection::Collection() {
-  // Leave it empty.
-}
-/*
-Collection::Collection(const Collection& collection) {
-  for (vector<Vertex *>::const_iterator it = collection._vertices.begin(); it
-	 != collection._vertices.end(); ++it)
-    _vertices.push_back(new Vertex(**it));
 }
 
-Collection& Collection::operator =(const Collection& collection) {
-  if (&collection != this) {
-    for (vector<Vertex *>::iterator it = _vertices.begin(); it
-	   != _vertices.end(); ++it)
-      delete *it;
-    _vertices.clear();
-
-    for (vector<Vertex *>::const_iterator it = collection._vertices.begin(); it
-	   != collection._vertices.end(); ++it)
-      _vertices.push_back(new Vertex(**it));
-  }
-  return *this;
-}
-
-Collection::~Collection() {
-  for (vector<Vertex *>::iterator it = _vertices.begin(); it
-	 != _vertices.end(); it++)
-    delete *it;
-}
-*/
 Collection::Collection(vector<Face *> faces, vector<Vertex *> vertices) {
   _vertices = vertices;
   _faces = faces;
@@ -39,36 +12,14 @@ Collection::Collection(vector<Face *> faces, vector<Vertex *> vertices) {
 }
 
 void Collection::draw() {
-  if (4 > _faces.size()) {
-    return;
-  }
   for (int i = 0; i < _faces.size(); i++) {
     Face * currentFace = _faces[i];
-    
     if (currentFace->getTexName() != "noTexture" && currentFace->getTexName() != "") {
       string texName = currentFace->getTexName();
       Texture * currentTexture = _loadedTextures[texName];
       glBindTexture(GL_TEXTURE_2D, currentTexture->getTex());
-      //std::cout << "loading " + texName << std::endl;
-      //currentFace->polyLoadTexture(texName);
     }
     currentFace->draw();
-    
-    /*
-    vector<Vertex> coordinates = currentFace->getCoordinates();
-    vec3 color = currentFace->getColor();
-    glColor3f(color[0], color[1], color[2]);
-    glBegin(GL_POLYGON);
-    for (int j = 0; j < coordinates.size(); j++) {
-      Vertex currentCoord = coordinates[j];
-      vec3 curPos = currentCoord.getPos();
-      double x = curPos[0];
-      double y = curPos[1];
-      double z = curPos[2];
-      glVertex3d(x, y, z);
-    }
-    glEnd();
-    */
   }
 }
 
@@ -97,7 +48,6 @@ void Collection::subDivide() {
   for (int i = 0; i < initSizeOfFaces; i ++) {
     Face * curFace = _faces[i];
     vector<vec2> curFaceTexCoords = curFace->getTexCoordinates();                        
-    //int curFaceTextureNum = curFace->getTextureNum();                                    
     int initSizeOfVerticesOnFace = curFace->getCoordinates().size();                     
     vec3 curFaceCentroid = curFace->getCentroid()->getPos();                             
     vec2 curFaceCentroidTexCoord = curFace->getCentroid()->getTextureCoord();            
@@ -197,7 +147,6 @@ void Collection::subDivide() {
       Face * newFace = new Face(vectorForNewFace);
       newFace->setTexName(curFace->getTexName());
       newFace->setColor(curFace->getColor());
-      //newFace->setTextureNum(curFaceTextureNum);
       for (int t = 0; t < newFaceTexCoords.size(); t++) {
 	newFace->addTexCoordinate(newFaceTexCoords[t]);
       }

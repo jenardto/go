@@ -11,7 +11,7 @@ Face::Face(vector<Vertex *> vertices) {
     _vertices.push_back(vertices[i]);
   }
 }
-
+/*
 Face::Face(string fileName) {
   vector<Vertex*> tempVerts;
   ifstream file(fileName.c_str(), ifstream::in);
@@ -32,7 +32,7 @@ Face::Face(string fileName) {
   std::cout << "Parsed an OBJ file with " << _vertices.size() << " vertices."
             << endl;
 }
-
+*/
 bool Face::onMyPoly(Vertex * vert) {
   for (int i = 0; i < _vertices.size(); i++) {
     if (_vertices[i]->equals(vert)) {
@@ -45,7 +45,7 @@ bool Face::onMyPoly(Vertex * vert) {
 void Face::addTexCoordinate(vec2 uv) {
   _texCoordinates.push_back(uv);
 }
-
+/*
 bool Face::_parseLine(string line, vector<Vertex*> & temp) {
   string operand;
   bool success = true;
@@ -79,17 +79,18 @@ bool Face::_parseLine(string line, vector<Vertex*> & temp) {
   }
   return success;
 }
-
+*/
 
 void Face::draw(GLenum mode) {
-  if (1 > _vertices.size())
+  if (1 > _vertices.size()) {
     return;
+  }
   if (_textureName == "noTexture" || _textureName == "") {
     glDisable(GL_TEXTURE_2D);
     glColor3f(_color[0], _color[1], _color[2]);
     glBegin(GL_POLYGON);
     for (int i = 0; i < _texCoordinates.size(); i++) {                                           
-      vec2 texPos = _texCoordinates[i];                                                         
+      vec2 texPos = _texCoordinates[i];
       glVertex3d(_vertices[i]->getPos()[0], _vertices[i]->getPos()[1], _vertices[i]->getPos()[2]);   
     } 
     glEnd();
@@ -98,7 +99,6 @@ void Face::draw(GLenum mode) {
     glColor3f(1.0, 1.0, 1.0);
     //glActiveTexture(GL_TEXTURE0);                                                
     //glBindTexture(GL_TEXTURE_2D, tex);
-
     glBegin(GL_POLYGON);
     for (int i = 0; i < _texCoordinates.size(); i++) {
       vec2 texPos = _texCoordinates[i];
@@ -112,9 +112,4 @@ void Face::draw(GLenum mode) {
 void Face::addVertex(Vertex * v) {
   _vertices.push_back(v);
 }
-/*
-bool Face::polyLoadTexture(string textureFile) {
-  bool texloaded = loadTexture(textureFile, tex);
-  return texloaded;
-}
-*/
+

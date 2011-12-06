@@ -33,15 +33,6 @@ Polygon::Polygon(string fileName) {
             << endl;
 }
 
-bool Polygon::onMyPoly(Vertex vert) {
-  for (int i = 0; i < _vertices.size(); i++) {
-    if (_vertices[i].equals(vert)) {
-      return true;
-    }
-  }
-  return false;
-}
-
 void Polygon::addTexCoordinate(vec2 uv) {
   _texCoordinates.push_back(uv);
 }
@@ -80,6 +71,10 @@ bool Polygon::_parseLine(string line, vector<Vertex> & temp) {
   return success;
 }
 
+void Polygon::addVertex(Vertex v) {
+  _vertices.push_back(v);
+}
+
 
 void Polygon::draw(GLenum mode) {
   if (1 > _vertices.size())
@@ -108,13 +103,13 @@ void Polygon::draw(GLenum mode) {
     glEnd();
   }
 }
-
-void Polygon::addVertex(Vertex v) {
-  _vertices.push_back(v);
-}
 /*
-bool Polygon::polyLoadTexture(string textureFile) {
-  bool texloaded = loadTexture(textureFile, tex);
-  return texloaded;
-}
+bool Polygon::onMyPoly(Vertex vert) {
+  for (int i = 0; i < _vertices.size(); i++) {
+    if (_vertices[i].equals(vert)) {
+      return true;
+    }
+  }
+  return false;
+} 
 */
