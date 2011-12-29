@@ -25,19 +25,21 @@ UCB::ImageSaver * imgSaver;
 void applyMat4(mat4 &m) {
   double glmat[16];
   int idx = 0;
-  for (int j = 0; j < 4; j++)
-    for (int i = 0; i < 4; i++)
-      glmat[idx++] = m[i][j];
+  for (int j = 0; j < 4; j++) {
+    for (int i = 0; i < 4; i++) {
+      glmat[idx++] = m[j][i];
+    }
+  }
   glMultMatrixd(glmat);
 }
 
-void setupView() {
+/*void setupView() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   glTranslatef(0,0,-3);
   applyMat4(viewport.orientation);
 }
-
+*/
 
 
 void RenderInstance(SceneInstance *n, vec3 color, string texture) {
@@ -315,12 +317,10 @@ void mergeVertices() {
 void display() {
   //Clear Buffers
   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-  glMatrixMode(GL_PROJECTION);
+  glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  
-  glColor3f(1.0, 1.0, 1.0);
+  glTranslatef(0, 0, -3);
   applyMat4(viewport.orientation);
-  
   /*
   Polygon * p = new Polygon();
   p->addVertex(Vertex(0.0, 0.0, 0.0));
@@ -396,6 +396,7 @@ void myKeyboardFunc(unsigned char key, int x, int y) {
 
 void myActiveMotionFunc(int x, int y) {
   vec2 newMouse = vec2((double)x / glutGet(GLUT_WINDOW_WIDTH),(double)y / glutGet(GLUT_WINDOW_HEIGHT));
+  //vec2 newMouse = vec2(-(double)x / glutGet(GLUT_WINDOW_WIDTH),-(double)y / glutGet(GLUT_WINDOW_HEIGHT));
   vec2 diff = (newMouse - viewport.mousePos);
   double len = diff.length();
   if (len > .001) {
@@ -445,10 +446,10 @@ int main(int argc, char** argv) {
   glutPassiveMotionFunc(myPassiveMotionFunc);
 
 
-  {                                                                                                
+  {     
     float ambient[4] = { .1f, .1f, .1f, 1.f };                                                    
-    float diffuse[4] = { 1.0f, 1.0f, 1.0f, 1.f };                                                 
-    float pos[4] = { 0, 0, 1, 0 };                                                                
+    float diffuse[4] = { 1.0f, 1.0f, 1.0f, 1.f };
+    float pos[4] = { 1, 0, 0, 0 };                                                                
     glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);                                                    
     glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);                                                    
     glLightfv(GL_LIGHT0, GL_POSITION, pos);                                                       
@@ -469,7 +470,7 @@ int main(int argc, char** argv) {
     exit(1);                                                                             
   }
 
-  glMatrixMode(GL_PROJECTION);                                                                  
+  glMatrixMode(GL_PROJECTION);
   glLoadIdentity();                                                                              
   // flatten scene!
   RenderInstance(scene->getRoot(), vec3(1,1,1), "noTexture");
